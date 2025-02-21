@@ -81,7 +81,7 @@ void initCells()
     symbol_table[i] = 0;
 
   /* フリーセルの先頭位置の初期化 */
-  freecells = 9; /* 0 ~ 8 は予約済み */
+  freecells = Last; /* last より小さいインデックスは予約済み */
 
   /* sp の初期化 */
   sp = 0; /* GC 用スタックポインタ */
@@ -101,6 +101,16 @@ void initCells()
   gc_addSystemSymbol(6, "macro");
   gc_addSystemSymbol(7, "comma");
   gc_addSystemSymbol(8, "atmark");
+
+  gc_addSystemSymbol(Env, "*env*");
+  gc_addSystemSymbol(Quote, "Quote");
+  gc_addSystemSymbol(Atom, "Atom");
+  gc_addSystemSymbol(Eq, "Eq");
+  gc_addSystemSymbol(Car, "Car");
+  gc_addSystemSymbol(Cdr, "Cdr");
+  gc_addSystemSymbol(Cons, "Cons");
+  gc_addSystemSymbol(Cond, "Cond");
+  gc_addSystemSymbol(Label, "label");
 
   /* 基本関数の登録 */
   gc_addFunc("eval", gc_eval_f, ARGsEVAL);
@@ -131,6 +141,12 @@ void initCells()
   gc_addFunc("quit", quit_f, ARGsNotEVAL);        /* インタプリタを出る */
   gc_addFunc("num", gc_num_f, ARGsNotEVAL);       /* チャーチ数に変換 */
   gc_addFunc("len", len_f, ARGsEVAL);             /* リストの長さを返す */
+
+  /* Test */
+  gc_addFunc("Assoclist", assoclist_wrapper, ARGsEVAL);
+  gc_addFunc("Assoc", assoc_wrapper, ARGsEVAL);
+  gc_addFunc("Evlist", evcond, ARGsEVAL);
+  gc_addFunc("Evlist", evlist, ARGsEVAL);
 }
 
 void top_loop()

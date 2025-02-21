@@ -36,6 +36,29 @@ enum ID
   ARGsNotEVAL, /* 関数の引数を評価しない */
 };
 
+enum name
+{
+  Nil,
+  T,
+  Lambda,
+  nLambda,
+  Oblist,
+  Funarg,
+  Macro,
+  Comma,
+  Atmark,
+  Env,
+  Quote,
+  Atom,
+  Eq,
+  Car,
+  Cdr,
+  Cons,
+  Cond,
+  Label,
+  Last
+};
+
 enum ERROR_NUM
 {
   off,
@@ -131,3 +154,9 @@ Index gc_gensym_f(Index, Index);
 Index quit_f(Index, Index);
 Index gc_num_f(Index, Index);
 Index len_f(Index, Index);
+
+Index assoclist_wrapper(Index, Index);
+Index assoc_wrapper(Index, Index);
+Index evcond(Index, Index);
+Index evlist(Index, Index);
+Index eval(Index, Index);

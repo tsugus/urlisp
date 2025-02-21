@@ -17,6 +17,130 @@ void print_error(Index form, char *msg)
   err = print_no_more; /* これ以上、表示しない */
 }
 
+Index cons(Index x, Index y)
+{
+  Index z;
+
+  push(x);
+  push(y);
+  z = gc_getFreeCell();
+  ec;
+  car(z) = x;
+  cdr(z) = y;
+  pop();
+  pop();
+  return z;
+}
+
+/***** new system ******/
+Index null(Index x)
+{
+  return (x == Nil ? T : Nil);
+}
+
+/***** new system ******/
+Index atom(Index x)
+{
+  return (tag(x) == CELL ? Nil : T);
+}
+
+/***** new system ******/
+Index nott(Index x)
+{
+  return (x == Nil ? T : Nil);
+}
+
+/***** new system ******/
+Index assoclist(Index keys, Index values)
+{
+  Index indx;
+
+  if ((keys == Nil) || (values == Nil))
+    return Nil;
+  push(keys);
+  push(values);
+  indx = Nil;
+  while (nott(atom(keys)) && nott(atom(values)))
+  {
+    cons(cons(car(keys), car(values)), indx);
+    ec;
+    keys = cdr(keys);
+    values = cdr(values);
+  }
+  if (nott(null(keys)))
+    cons(keys, values);
+  pop();
+  pop();
+  return indx;
+}
+Index assoclist_wrapper(Index args, Index env)
+{
+  return assoclist(car(args), car(car(args)));
+}
+
+/***** new system ******/
+Index assoc(Index key, Index lst)
+{
+  Index indx;
+
+  if (null(lst))
+    return Nil;
+  for (; lst != Nil; lst = cdr(lst))
+    if (key == car(car(lst)))
+      return cdr(car(lst));
+  return error("An identifier not found in association list.");
+}
+Index assoc_wrapper(Index args, Index env)
+{
+  return assoc(car(args), car(car(args)));
+}
+
+/***** new system ******/
+Index isSUBR(Index x)
+{
+  switch (x)
+  {
+  case Atom:
+  case Eq:
+  case Car:
+  case Cdr:
+  case Cons:
+    return 1;
+  default:
+    return 0;
+  }
+}
+
+/***** new system ******/
+Index evcond(Index clauses, Index env)
+{
+  for (; nott(null(clauses)); clauses = cdr(clauses))
+    if (nott(null(eval(car(car(clauses)), env))))
+      return eval(car(cdr(car(clauses))), env);
+  return Nil;
+}
+
+/***** new system ******/
+Index evlist(Index members, Index env)
+{
+  Index indx;
+
+  for (indx = Nil; nott(null(members)); members = cdr(members))
+    indx = cons(eval(car(members), env), indx);
+  return indx;
+}
+
+/***** new system ******/
+Index eval(Index exp, Index env)
+{
+  if (exp == T)
+    return T;
+  else if (exp == Nil)
+    return Nil;
+  else if (exp == Atom)
+    return 0;
+}
+
 /* 連想リスト検索 */
 int searchAssoc(Index key, Index *value, Index assoclist)
 {
