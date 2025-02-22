@@ -103,45 +103,15 @@ void initCells()
   gc_addSystemSymbol(8, "atmark");
 
   gc_addSystemSymbol(Env, "*env*");
-  gc_addSystemSymbol(Quote, "Quote");
-  gc_addSystemSymbol(Atom, "Atom");
-  gc_addSystemSymbol(Eq, "Eq");
-  gc_addSystemSymbol(Car, "Car");
-  gc_addSystemSymbol(Cdr, "Cdr");
-  gc_addSystemSymbol(Cons, "Cons");
-  gc_addSystemSymbol(Cond, "Cond");
-  gc_addSystemSymbol(Label, "Label");
-  gc_addSystemSymbol(Setq, "Setq");
-
-  /* 基本関数の登録 */
-  gc_addFunc("eval", gc_eval_f, ARGsEVAL);
-  gc_addFunc("apply", gc_apply_f, ARGsNotEVAL);
-  gc_addFunc("quote", quote_f, ARGsNotEVAL);
-  gc_addFunc("car", gc_car_f, ARGsEVAL);
-  gc_addFunc("cdr", gc_cdr_f, ARGsEVAL);
-  gc_addFunc("cons", gc_cons_f, ARGsEVAL);
-  gc_addFunc("cond", gc_cond_f, ARGsNotEVAL);
-  gc_addFunc("atom", gc_atom_f, ARGsEVAL);
-  gc_addFunc("eq", gc_eq_f, ARGsEVAL);
-  gc_addFunc("de", gc_de_f, ARGsNotEVAL);
-  gc_addFunc("df", gc_df_f, ARGsNotEVAL);
-  gc_addFunc("setq", gc_setq_f, ARGsNotEVAL);         /* 値を評価してそれぞれ変数に代入 */
-  gc_addFunc("psetq", gc_psetq_f, ARGsNotEVAL);       /* 値を一括評価後、各変数に代入 */
-  gc_addFunc("gc", gc_f, ARGsNotEVAL);                /* ガベージ・コレクション */
-  gc_addFunc("while", gc_while_f, ARGsNotEVAL);       /* 前置判定ループ */
-  gc_addFunc("until", gc_until_f, ARGsNotEVAL);       /* 否定的後置判定ループ */
-  gc_addFunc("rplaca", gc_rplaca_f, ARGsEVAL);        /* リスト先頭の cdr を書き換える */
-  gc_addFunc("rplacd", gc_rplacd_f, ARGsEVAL);        /* リスト先頭の cdr を書き換える */
-  gc_addFunc("function", gc_function_f, ARGsNotEVAL); /* funarg 式を作る */
-  gc_addFunc("funcall", gc_funcall_f, ARGsNotEVAL);   /* funarg 式を引数に適用する */
-  gc_addFunc("dm", gc_dm_f, ARGsNotEVAL);
-  gc_addFunc("backquote", gc_backquote_f, ARGsNotEVAL);
-  gc_addDummyFunc(7, comma_f, ARGsNotEVAL);       /* comma (ダミー関数) */
-  gc_addDummyFunc(8, atmark_f, ARGsNotEVAL);      /* atmark (ダミー関数) */
-  gc_addFunc("gensym", gc_gensym_f, ARGsNotEVAL); /* 変数の自動生成 */
-  gc_addFunc("quit", quit_f, ARGsNotEVAL);        /* インタプリタを出る */
-  gc_addFunc("num", gc_num_f, ARGsNotEVAL);       /* チャーチ数に変換 */
-  gc_addFunc("len", len_f, ARGsEVAL);             /* リストの長さを返す */
+  gc_addSystemSymbol(Quote, "quote");
+  gc_addSystemSymbol(Atom, "atom");
+  gc_addSystemSymbol(Eq, "eq");
+  gc_addSystemSymbol(Car, "car");
+  gc_addSystemSymbol(Cdr, "cdr");
+  gc_addSystemSymbol(Cons, "cons");
+  gc_addSystemSymbol(Cond, "cond");
+  gc_addSystemSymbol(Label, "label");
+  gc_addSystemSymbol(Setq, "setq");
 
   /* Test */
 //  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);

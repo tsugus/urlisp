@@ -95,10 +95,12 @@ Index assoclist(Index keys, Index values)
     values = cdr(values);
   }
   if (nott(null(keys)))
-    indx = append(indx, cons(keys, values));
+  {
+    indx = cons(cons(keys, values), indx);
+  }
   // pop();
   // pop();
-  return indx;
+  return rev_append(indx, Nil);
 }
 Index assoclist_wrapper(Index args, Index env)
 {
@@ -210,8 +212,8 @@ Index apply(Index func, Index args, Index env)
       return cons(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
-    case Env:
-      return Env;
+//    case Env: return Env;
+      //return assoclist(car(args), car(cdr(args)));
     case Setq:
       return setq(car(args), car(cdr(args)), env);
     default:
@@ -245,7 +247,7 @@ Index evlist(Index members, Index env)
 
   for (indx = Nil; nott(null(members)); members = cdr(members))
     indx = cons(eval(car(members), env), indx);
-  return indx;
+  return rev_append(indx, Nil);
 }
 
 /* 連想リスト検索 */
