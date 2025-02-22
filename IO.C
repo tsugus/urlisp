@@ -221,7 +221,7 @@ Index gc_makeAtom()
   }
   /* 省略記法 */
   if (*txtp == '\'')
-    return gc_makeatom_sub("quote ");
+    return gc_makeatom_sub("Quote ");
   if (*txtp == '`')
     return gc_makeatom_sub("backquote ");
   if (*txtp == ',' && *(txtp + 1) == '@')

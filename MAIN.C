@@ -110,7 +110,8 @@ void initCells()
   gc_addSystemSymbol(Cdr, "Cdr");
   gc_addSystemSymbol(Cons, "Cons");
   gc_addSystemSymbol(Cond, "Cond");
-  gc_addSystemSymbol(Label, "label");
+  gc_addSystemSymbol(Label, "Label");
+  gc_addSystemSymbol(Setq, "Setq");
 
   /* 基本関数の登録 */
   gc_addFunc("eval", gc_eval_f, ARGsEVAL);
@@ -143,7 +144,8 @@ void initCells()
   gc_addFunc("len", len_f, ARGsEVAL);             /* リストの長さを返す */
 
   /* Test */
-  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);
+//  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);
+//  gc_addFunc("Atom", atom_wrapper, ARGsNotEVAL);
   gc_addFunc("Append", append_wrapper, ARGsEVAL);
   gc_addFunc("Assoclist", assoclist_wrapper, ARGsEVAL);
   gc_addFunc("Assoc", assoc_wrapper, ARGsEVAL);
@@ -173,7 +175,7 @@ void top_loop()
       *txtp = '\0';
       continue;
     }
-    toplevel = gc_eval(toplevel, 0);
+    toplevel = eval(toplevel, Env);
     if (err == off)
     {
       printS(toplevel);

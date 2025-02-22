@@ -46,7 +46,11 @@ Index null(Index x)
 /***** new system ******/
 Index atom(Index x)
 {
-  return (tag(x) == CELL ? Nil : T);
+  return (abs(tag(x)) == CELL ? Nil : T);
+}
+Index atom_wrapper(Index args, Index env)
+{
+  return atom(car(args));
 }
 
 /***** new system ******/
@@ -85,37 +89,33 @@ Index assoclist(Index keys, Index values)
   indx = Nil;
   while (nott(atom(keys)) && nott(atom(values)))
   {
-    cons(cons(car(keys), car(values)), indx);
+    indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
     values = cdr(values);
   }
   if (nott(null(keys)))
-    cons(keys, values);
+    indx = append(indx, cons(keys, values));
   // pop();
   // pop();
   return indx;
 }
 Index assoclist_wrapper(Index args, Index env)
 {
-  return assoclist(car(args), car(car(args)));
+  return assoclist(car(args), car(cdr(args)));
 }
 
 /***** new system ******/
 Index assoc(Index key, Index lst)
 {
-  Index indx;
-
-  if (null(lst))
-    return Nil;
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
-  return error("An identifier not found in association list.");
+  return error("識別子が環境リストにない。");
 }
 Index assoc_wrapper(Index args, Index env)
 {
-  return assoc(car(args), car(car(args)));
+  return assoc(car(args), car(cdr(args)));
 }
 
 /***** new system ******/
@@ -146,26 +146,41 @@ Index eval(Index exp, Index env)
   else if (atom(exp) == T)
   {
     result = assoc(exp, env);
-    ec;
   }
   else if (isSUBR(car(exp)) == T)
   {
     result = apply(car(exp), evlist(cdr(exp), env), env);
-    ec;
   }
   else
   {
     result = apply(car(exp), cdr(exp), env);
-    ec;
   }
   if (err == on)
   {
     print_error(exp, message);
     return Nil;
   }
-  pop(); /* push した回数だけ pop する */
+  pop();
   pop();
   return result;
+}
+
+Index setq(Index var, Index val, Index env)
+{
+  val = eval(val, env);
+  push(var);
+  push(val);
+  push(env);
+  ec;
+  push(val);
+  cdr(env) = cons(car(env), cdr(env));
+  ec;
+  car(env) = cons(var, val);
+  ec;
+  pop();
+  pop();
+  pop();
+  return var;
 }
 
 /***** new system ******/
@@ -195,16 +210,19 @@ Index apply(Index func, Index args, Index env)
       return cons(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
+    case Env:
+      return Env;
+    case Setq:
+      return setq(car(args), car(cdr(args)), env);
     default:
       return eval(cons(assoc(func, env), args), env);
     }
-    if (car(func) == Label)
-      (eval(cons(car(cdr(cdr(func))), car(cdr(cdr(func)))), env));
-    else if (car(func) == Lambda)
-      eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
   }
-  else
-    return error("不正な式。");
+  else if (car(func) == Label)
+    return (eval(cons(car(cdr(cdr(func))), car(cdr(cdr(func)))), env));
+  else if (car(func) == Lambda)
+    return eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
+  return error("不正な式。");
 }
 Index apply_wrapper(Index args, Index env)
 {

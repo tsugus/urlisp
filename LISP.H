@@ -56,7 +56,8 @@ enum name
   Cons,
   Cond,
   Label,
-  Last
+  Last,
+  Setq
 };
 
 enum ERROR_NUM
@@ -156,6 +157,7 @@ Index gc_num_f(Index, Index);
 Index len_f(Index, Index);
 
 Index cons_wrapper(Index, Index);
+Index atom_wrapper(Index, Index);
 Index append_wrapper(Index, Index);
 Index assoclist_wrapper(Index, Index);
 Index assoc_wrapper(Index, Index);
