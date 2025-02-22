@@ -17,6 +17,7 @@ void print_error(Index form, char *msg)
   err = print_no_more; /* これ以上、表示しない */
 }
 
+/***** new system ******/
 Index cons(Index x, Index y)
 {
   Index z;
@@ -30,6 +31,10 @@ Index cons(Index x, Index y)
   pop();
   pop();
   return z;
+}
+Index cons_wrapper(Index args, Index env)
+{
+  return cons(car(args), car(cdr(args)));
 }
 
 /***** new system ******/
@@ -51,14 +56,32 @@ Index nott(Index x)
 }
 
 /***** new system ******/
+Index rev_append(Index x, Index y)
+{
+  for (; x != Nil; x = cdr(x))
+    y = cons(car(x), y);
+  return y;
+}
+
+/***** new system ******/
+Index append(Index x, Index y)
+{
+  return rev_append(rev_append(x, Nil), y);
+}
+Index append_wrapper(Index args, Index env)
+{
+  return append(car(args), car(cdr(args)));
+}
+
+/***** new system ******/
 Index assoclist(Index keys, Index values)
 {
   Index indx;
 
   if ((keys == Nil) || (values == Nil))
     return Nil;
-  push(keys);
-  push(values);
+  // push(keys);
+  // push(values);
   indx = Nil;
   while (nott(atom(keys)) && nott(atom(values)))
   {
@@ -69,8 +92,8 @@ Index assoclist(Index keys, Index values)
   }
   if (nott(null(keys)))
     cons(keys, values);
-  pop();
-  pop();
+  // pop();
+  // pop();
   return indx;
 }
 Index assoclist_wrapper(Index args, Index env)
@@ -105,10 +128,87 @@ Index isSUBR(Index x)
   case Car:
   case Cdr:
   case Cons:
-    return 1;
+    return T;
   default:
-    return 0;
+    return Nil;
   }
+}
+
+/***** new system ******/
+Index eval(Index exp, Index env)
+{
+  Index result;
+
+  push(exp);
+  push(env);
+  if (exp == T)
+    result = T;
+  else if (atom(exp) == T)
+  {
+    result = assoc(exp, env);
+    ec;
+  }
+  else if (isSUBR(car(exp)) == T)
+  {
+    result = apply(car(exp), evlist(cdr(exp), env), env);
+    ec;
+  }
+  else
+  {
+    result = apply(car(exp), cdr(exp), env);
+    ec;
+  }
+  if (err == on)
+  {
+    print_error(exp, message);
+    return Nil;
+  }
+  pop(); /* push した回数だけ pop する */
+  pop();
+  return result;
+}
+
+/***** new system ******/
+Index apply(Index func, Index args, Index env)
+{
+  if (atom(func) == T && func != Nil)
+  {
+    switch (func)
+    {
+    case Quote:
+      return car(args);
+    case Atom:
+      if (atom(car(args)))
+        return T;
+      else
+        return Nil;
+    case Eq:
+      if (car(args) == car(cdr(args)))
+        return T;
+      else
+        return Nil;
+    case Car:
+      return car(car(args));
+    case Cdr:
+      return cdr(car(args));
+    case Cons:
+      return cons(car(args), car(cdr(args)));
+    case Cond:
+      return evcond(args, env);
+    default:
+      return eval(cons(assoc(func, env), args), env);
+    }
+    if (car(func) == Label)
+      (eval(cons(car(cdr(cdr(func))), car(cdr(cdr(func)))), env));
+    else if (car(func) == Lambda)
+      eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
+  }
+  else
+    return error("不正な式。");
+}
+Index apply_wrapper(Index args, Index env)
+{
+  return apply(car(args), car(cdr(args)), env);
 }
 
 /***** new system ******/
@@ -128,17 +228,6 @@ Index evlist(Index members, Index env)
   for (indx = Nil; nott(null(members)); members = cdr(members))
     indx = cons(eval(car(members), env), indx);
   return indx;
-}
-
-/***** new system ******/
-Index eval(Index exp, Index env)
-{
-  if (exp == T)
-    return T;
-  else if (exp == Nil)
-    return Nil;
-  else if (exp == Atom)
-    return 0;
 }
 
 /* 連想リスト検索 */

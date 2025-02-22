@@ -155,8 +155,12 @@ Index quit_f(Index, Index);
 Index gc_num_f(Index, Index);
 Index len_f(Index, Index);
 
+Index cons_wrapper(Index, Index);
+Index append_wrapper(Index, Index);
 Index assoclist_wrapper(Index, Index);
 Index assoc_wrapper(Index, Index);
+Index eval(Index, Index);
+Index apply(Index, Index, Index);
+Index apply_wrapper(Index, Index);
 Index evcond(Index, Index);
 Index evlist(Index, Index);
-Index eval(Index, Index);

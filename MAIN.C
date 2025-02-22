@@ -143,8 +143,12 @@ void initCells()
   gc_addFunc("len", len_f, ARGsEVAL);             /* リストの長さを返す */
 
   /* Test */
+  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);
+  gc_addFunc("Append", append_wrapper, ARGsEVAL);
   gc_addFunc("Assoclist", assoclist_wrapper, ARGsEVAL);
   gc_addFunc("Assoc", assoc_wrapper, ARGsEVAL);
+  gc_addFunc("Eval", eval, ARGsEVAL);
+  gc_addFunc("Apply", apply_wrapper, ARGsEVAL);
   gc_addFunc("Evlist", evcond, ARGsEVAL);
   gc_addFunc("Evlist", evlist, ARGsEVAL);
 }
