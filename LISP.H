@@ -7,7 +7,7 @@
 /*                 (C) 2024-2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x10000  /* セルの総数 */
+#define CELLS_SIZE 0x8000  /* セルの総数 */
 #define TEXTBUF_SIZE 100    /* 入力テキスト用バッファ */
 #define SYMBOLTABLE_SIZE 64 /* シンボルを割り振るハッシュテーブルのサイズ */
 #define STACK_SIZE 0x1000   /* GC 用スタックのサイズ */

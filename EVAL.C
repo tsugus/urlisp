@@ -49,8 +49,15 @@ Index nott(Index x)
 
 Index rev_append(Index x, Index y)
 {
+  push(x);
   for (; x != Nil; x = cdr(x))
+  {
+    push(y);
     y = cons(car(x), y);
+    ec;
+    pop();
+  }
+  pop();
   return y;
 }
 
@@ -69,27 +76,28 @@ Index assoclist(Index keys, Index values)
 
   if ((keys == Nil) || (values == Nil))
     return Nil;
-  // push(keys);
-  // push(values);
   indx = Nil;
+  push(keys);
+  push(values);
   while (nott(atom(keys)) && nott(atom(values)))
   {
+    push(indx);
     indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
     values = cdr(values);
+    pop();
   }
   if (nott(null(keys)))
   {
+    push(indx);
     indx = cons(cons(keys, values), indx);
+    ec;
+    pop();
   }
-  // pop();
-  // pop();
+  pop();
+  pop();
   return rev_append(indx, Nil);
-}
-Index assoclist_wrapper(Index args, Index env)
-{
-  return assoclist(car(args), car(cdr(args)));
 }
 
 Index assoc(Index key, Index lst)
@@ -98,10 +106,6 @@ Index assoc(Index key, Index lst)
     if (key == car(car(lst)))
       return cdr(car(lst));
   return error("An identifier that is not in the environment list.");
-}
-Index assoc_wrapper(Index args, Index env)
-{
-  return assoc(car(args), car(cdr(args)));
 }
 
 Index isSUBR(Index x)
@@ -121,11 +125,12 @@ Index isSUBR(Index x)
 
 Index setq(Index var, Index val, Index env)
 {
-  val = eval(val, env);
   push(var);
-  push(val);
   push(env);
+  push(val);
+  val = eval(val, env);
   ec;
+  pop();
   push(val);
   cdr(env) = cons(car(env), cdr(env));
   ec;
@@ -134,7 +139,7 @@ Index setq(Index var, Index val, Index env)
   pop();
   pop();
   pop();
-  return var;
+  return val;
 }
 
 Index importEnv(Index pairlist)
@@ -208,7 +213,7 @@ Index apply(Index func, Index args, Index env)
       else
         return cdr(car(args));
     case Cons:
-        return cons(car(args), car(cdr(args)));
+      return cons(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
     case Setq:
@@ -231,10 +236,6 @@ Index apply(Index func, Index args, Index env)
   else
     return error("An invalid Expression.");
 }
-Index apply_wrapper(Index args, Index env)
-{
-  return apply(car(args), car(cdr(args)), env);
-}
 
 Index evcond(Index clauses, Index env)
 {
@@ -249,6 +250,11 @@ Index evlist(Index members, Index env)
   Index indx;
 
   for (indx = Nil; nott(null(members)); members = cdr(members))
+  {
+    push(indx);
     indx = cons(eval(car(members), env), indx);
+    ec;
+    pop();
+  }
   return rev_append(indx, Nil);
 }
