@@ -17,6 +17,11 @@ void print_error(Index form, char *msg)
   err = print_no_more; /* これ以上、表示しない */
 }
 
+Index atom(Index x)
+{
+  return (abs(tag(x)) == CELL ? Nil : T);
+}
+
 Index cons(Index x, Index y)
 {
   Index z;
@@ -32,24 +37,9 @@ Index cons(Index x, Index y)
   return z;
 }
 
-Index cons_wrapper(Index args, Index env)
-{
-  return cons(car(args), car(cdr(args)));
-}
-
 Index null(Index x)
 {
   return (x == Nil ? T : Nil);
-}
-
-Index atom(Index x)
-{
-  return (abs(tag(x)) == CELL ? Nil : T);
-}
-
-Index atom_wrapper(Index args, Index env)
-{
-  return atom(car(args));
 }
 
 Index nott(Index x)
@@ -208,15 +198,19 @@ Index apply(Index func, Index args, Index env)
       else
         return Nil;
     case Car:
-      return car(car(args));
+      if (atom(car(args)) == T)
+        return error("＂第一引数がリストではない。");
+      else
+        return car(car(args));
     case Cdr:
-      return cdr(car(args));
+      if (atom(car(args)) == T)
+        return error("＂第一引数がリストではない。");
+      else
+        return cdr(car(args));
     case Cons:
-      return cons(car(args), car(cdr(args)));
+        return cons(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
-      //    case Env: return Env;
-      // return assoclist(car(args), car(cdr(args)));
     case Setq:
       return setq(car(args), car(cdr(args)), env);
     case ImportEnv:
@@ -235,11 +229,7 @@ Index apply(Index func, Index args, Index env)
   else if (car(func) == Lambda)
     return eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
   else
-  {
-    printS(car(func));            // テスト
-    printf(" = %d. ", car(func)); // テスト
     return error("An invalid Expression.");
-  }
 }
 Index apply_wrapper(Index args, Index env)
 {
