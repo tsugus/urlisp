@@ -6,8 +6,8 @@
 ; =====================================
 ; "Meta-circular" Environment List
 
-(setq plisp
-'(
+(def plisp
+(
   (caar . (lambda (x) (car (car x))))
   (cadr . (lambda (x) (car (cdr x))))
   (cdar . (lambda (x) (cdr (car x))))

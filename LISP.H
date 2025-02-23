@@ -50,9 +50,9 @@ enum name
   Cond,
   Eval,
   Label,
-  Setq,
   ImportEnv,
   ExportEnv,
+  Def,
   Gc,
   Last
 };
