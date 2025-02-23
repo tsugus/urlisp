@@ -117,6 +117,7 @@ Index isSUBR(Index x)
   case Car:
   case Cdr:
   case Cons:
+  case Eval:
     return T;
   default:
     return Nil;
@@ -210,6 +211,8 @@ Index apply(Index func, Index args, Index env)
       return cons(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
+    case Eval:
+      return eval(car(args), car(cdr(args)));
     case Setq:
       return setq(car(args), car(cdr(args)), env);
     case ImportEnv:
@@ -224,9 +227,14 @@ Index apply(Index func, Index args, Index env)
     }
   }
   else if (car(func) == Label)
-    return (eval(cons(car(cdr(cdr(func))), car(cdr(cdr(func)))), env));
+    return eval(cons(car(cdr(cdr(func))), args),
+                cons(cons(car(cdr(func)), car(cdr(cdr(func)))),
+                     env));
   else if (car(func) == Lambda)
-    return eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
+    return eval(car(cdr(cdr(func))),
+                append(assoclist(car(cdr(func)),
+                                 evlist(args, env)),
+                       env));
   else
     return error("An invalid Expression.");
 }
