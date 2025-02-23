@@ -48,6 +48,7 @@ enum name
   Cdr,
   Cons,
   Cond,
+  Eval,
   Label,
   Setq,
   ImportEnv,

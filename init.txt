@@ -6,8 +6,8 @@
 ; =====================================
 ; "Meta-circular" Environment List
 
-(importenv
-(
+(setq plisp
+'(
   (caar . (lambda (x) (car (car x))))
   (cadr . (lambda (x) (car (cdr x))))
   (cdar . (lambda (x) (cdr (car x))))
@@ -64,19 +64,19 @@
              ((eq x 'car) 't)
              ((eq x 'cdr) 't)
              ((eq x 'cons) 't)
-             ((eq x 'eval) 't)
+             ((eq x 'eval*) 't)
              (t '()))))
-  (eval
+  (eval*
    . (lambda (exp env)
        (cond
          ((eq exp 't) 't)
          ((eq exp '()) '())
          ((atom exp) (assoc exp env))
          ((isSUBR (car exp))
-          (apply (car exp) (evlist (cdr exp) env) env))
+          (apply* (car exp) (evlist (cdr exp) env) env))
          (t
-          (apply (car exp) (cdr exp) env)))))
-  (apply
+          (apply* (car exp) (cdr exp) env)))))
+  (apply*
    . (lambda (func args env)
        (cond
          ((and (atom func) (not (null func)))
@@ -91,30 +91,30 @@
             ((eq func 'cdr)   (cdr (car args)))
             ((eq func 'cons)  (cons (car args) (cadr args)))
             ((eq func 'cond)  (evcond args env))
-            ((eq func 'eval)  (eval (car args) (cadr args)))
-            (t (eval (cons (assoc func env) args) env))))
+            ((eq func 'eval*)  (eval* (car args) (cadr args)))
+            (t (eval* (cons (assoc func env) args) env))))
          ((eq (car func) 'label)
-          (eval (cons (caddr func) args)
+          (eval* (cons (caddr func) args)
                  (cons (cons (cadr func) (caddr func)) env)))
          ((eq (car func) 'lambda)
-          (eval (caddr func)
+          (eval* (caddr func)
                  (append (assoclist (cadr func) (evlist args env))
                          env))))))
   (evcond
    . (lambda (clauses env)
        (cond ((null clauses) '())
-             ((null (eval (caar clauses) env))
+             ((null (eval* (caar clauses) env))
               (evcond (cdr clauses) env))
-             (t (eval (cadar clauses) env)))))
+             (t (eval* (cadar clauses) env)))))
   (evlist
    . (lambda (members env)
        (cond ((null members) '())
-             (t (cons (eval (car members) env)
+             (t (cons (eval* (car members) env)
                       (evlist (cdr members) env))))))
 ))
 
 ; =====================================
-; Test
+; Test 1
 
 ;; ==> a
 ;;
@@ -170,69 +170,67 @@
  '())
 
 ; -------------------------------------
-; Test 2 ("eval*" is a universal Turing machine.)
-; ("eval*" is a universal Turing machine.
-; Because the specification of "eval_" is the same as that of "eval*".)
+; Test 2
 
 ;; ==> a
 ;;
 (eval
- '(eval 'x '((x . a) (y . b)))
- (exportenv))
+ '(eval* 'x '((x . a) (y . b)))
+ plisp)
 
 ;; ==> t
 ;;
 (eval
- '(eval '(eq 'a 'a) '())
- (exportenv))
+ '(eval* '(eq 'a 'a) '())
+ plisp)
 
 ;; ==> (a b c)
 ;;
 (eval
- '(eval '(cons x '(b c)) '((x . a) (y . b)))
- (exportenv))
+ '(eval* '(cons x '(b c)) '((x . a) (y . b)))
+ plisp)
 
 ;; ==> list
 ;;
 (eval
- '(eval '(cond ((atom x) 'atom)
+ '(eval* '(cond ((atom x) 'atom)
                 (t 'list))
          '((x '(a b))))
- (exportenv))
+ plisp)
 
 ;; ==> (a b c)
 ;;
 (eval
- '(eval '(f '(b c))
+ '(eval* '(f '(b c))
          '((f . (lambda (x) (cons 'a x)))))
- (exportenv))
+ plisp)
 
 ;; ==> a
 ;;
 (eval
- '(eval
+ '(eval*
    '((label firstatom
             (lambda (x)
               (cond ((atom x) x)
                     (t (firstatom (car x))))))
      y)
    '((y . ((a b) (c d)))))
- (exportenv))
+ plisp)
 
 ;; = (a c d)
 ;;
 (eval
- '(eval
+ '(eval*
    '((lambda (x y) (cons x (cdr y)))
      'a
      '(b c d))
    '())
- (exportenv))
+ plisp)
 
 ;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
 ;;
 (eval
- '(eval
+ '(eval*
    '((label subst
             (lambda (x y z)
               (cond ((atom z) (cond ((eq z y) x)
@@ -241,6 +239,6 @@
                              (subst x y (cdr z)))))))
      'm 'b '(a b (a b c) d))
    '())
- (exportenv))
+ plisp)
 
 ; -------------------------------------
