@@ -43,14 +43,14 @@ Index purseSymbol(Index indx)
 {
   tag(indx) = abs(tag(indx));
   purseName(car(indx));
-  if (!cdr(indx))
-    return indx;
-  indx = cdr(indx);
-  tag(indx) = abs(tag(indx));
-  if (tag(car(indx)) == -CELL) /* 関数定義、あるいは値としての S-式。かつ未訪問 */
-    purseS(car(indx));
-  else if (is(car(indx), POINTER))
-    tag(car(indx)) = POINTER;
+//  if (!cdr(indx))
+//    return indx;
+//  indx = cdr(indx);
+//  tag(indx) = abs(tag(indx));
+//  if (tag(car(indx)) == -CELL) /* 関数定義、あるいは値としての S-式。かつ未訪問 */
+//    purseS(car(indx));
+//  else if (is(car(indx), POINTER))
+//    tag(car(indx)) = POINTER;
   return indx;
 }
 
@@ -75,7 +75,7 @@ Index purseAtom(Index indx)
         symbol = indx;
         break;
       }
-      symbol = cdr(cdr(symbol));
+      symbol = cdr(symbol);
     }
     /* indx がシンボルテーブルにない場合 */
     if (!symbol)

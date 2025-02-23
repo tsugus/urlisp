@@ -26,40 +26,8 @@ Index environment;
 void gc_addSystemSymbol(Index n, char *name)
 {
   car(n) = gc_strToName(name);
-  cdr(n) = gc_getFreeCell();
   tag(n) = SYMBOL;
-  car(cdr(n)) = n;
-  cdr(cdr(n)) = 0;
   addSymbol(hash(name), n);
-}
-
-void gc_addFunc(char *name, Index (*func)(Index, Index), enum ID id)
-{
-  Index f, cell;
-
-  f = gc_makeSymbol(name);
-  addSymbol(hash(name), f);
-  tag(f) = SYMBOL;
-  car(cdr(f)) = gc_getFreeCell();
-  p_f(car(cdr(f))) = func;
-  tag(car(cdr(f))) = POINTER;
-  tag(cdr(f)) = id;
-  /* oblist に登録 */
-  cell = gc_getFreeCell();
-  cdr(cell) = car(cdr(4));
-  car(cdr(4)) = cell;
-  car(cell) = f;
-}
-
-void gc_addDummyFunc(Index indx, Index (*func)(Index, Index), enum ID id)
-{
-  Index cell;
-
-  tag(indx) = SYMBOL;
-  car(cdr(indx)) = gc_getFreeCell();
-  p_f(car(cdr(indx))) = func;
-  tag(car(cdr(indx))) = POINTER;
-  tag(cdr(indx)) = id;
 }
 
 void initCells()
