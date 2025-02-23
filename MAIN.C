@@ -20,6 +20,7 @@ int err;
 char *message;
 FILE *ifp;
 int sp;
+Index environment;
 
 /* インデックス n のセルに name を持つシンボルを作ってテーブルに登録 */
 void gc_addSystemSymbol(Index n, char *name)
@@ -86,14 +87,17 @@ void initCells()
   /* sp の初期化 */
   sp = 0; /* GC 用スタックポインタ */
 
+  /* 環境リストの初期化 */
+  environment = 0;
+
   /* nil の登録 */
   tag(0) = NIL;
   car(0) = 0;
   cdr(0) = 0;
 
   /* システム・シンボルの登録 */
-  gc_addSystemSymbol(1, "t");
-  gc_addSystemSymbol(2, "lambda");
+  gc_addSystemSymbol(T, "t");
+  gc_addSystemSymbol(Lambda, "lambda");
   gc_addSystemSymbol(3, "nlambda");
   gc_addSystemSymbol(4, "oblist");
   car(cdr(4)) = 0;
@@ -102,7 +106,7 @@ void initCells()
   gc_addSystemSymbol(7, "comma");
   gc_addSystemSymbol(8, "atmark");
 
-  gc_addSystemSymbol(Env, "*env*");
+//  gc_addSystemSymbol(Env, "*env*");
   gc_addSystemSymbol(Quote, "quote");
   gc_addSystemSymbol(Atom, "atom");
   gc_addSystemSymbol(Eq, "eq");
@@ -112,6 +116,7 @@ void initCells()
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Label, "label");
   gc_addSystemSymbol(Setq, "setq");
+  gc_addSystemSymbol(LoadEnv, "loadenv");
 
   /* Test */
 //  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);
@@ -145,7 +150,7 @@ void top_loop()
       *txtp = '\0';
       continue;
     }
-    toplevel = eval(toplevel, Env);
+    toplevel = eval(toplevel, environment);
     if (err == off)
     {
       printS(toplevel);
@@ -158,11 +163,11 @@ void greeting()
 {
   printf("\n");
   printf("\t     An pure LISP Interpreter\n\n");
-  printf("\t         p u r e  L I S P\n\n");
-  printf("\t          Version 0.5.1\n");
+  printf("\t           U r L I S P\n\n");
+  printf("\t          Version 0.0.1\n");
   printf("\tThis software is released under the\n");
   printf("\t           MIT License.\n\n");
-  printf("\t                (C) 2024-2025 Tsugu\n\n");
+  printf("\t                     (C) 2025 Tsugu\n\n");
 }
 
 int main()

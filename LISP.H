@@ -57,7 +57,8 @@ enum name
   Cond,
   Label,
   Last,
-  Setq
+  Setq,
+  LoadEnv
 };
 
 enum ERROR_NUM
@@ -100,6 +101,7 @@ extern int err;
 extern char *message;
 extern FILE *ifp;
 extern int sp; /* GC 用スタックポインタ */
+extern Index environment; /* 環境リスト */
 #endif
 
 /* From "MAIN.C" */
@@ -118,44 +120,8 @@ void printS(Index);
 Index push(Index);
 Index pop();
 Index purseS(Index);
-/* From "EVAL.C" */
-Index gc_eval_args(Index, Index);
-Index gc_cloneS(Index);
-Index gc_apply(Index, Index, Index);
-Index gc_eval(Index, Index);
-Index getFromOblist(Index);
-Index gc_bqev(Index, Index);
-Index gc_bqapnd(Index, Index);
-/* From "FUNC.C" */
-Index gc_eval_f(Index, Index);
-Index gc_apply_f(Index, Index);
-Index quote_f(Index, Index);
-Index gc_car_f(Index, Index);
-Index gc_cdr_f(Index, Index);
-Index gc_cons_f(Index, Index);
-Index gc_cond_f(Index, Index);
-Index gc_atom_f(Index, Index);
-Index gc_eq_f(Index, Index);
-Index gc_de_f(Index, Index);
-Index gc_df_f(Index, Index);
-Index gc_setq_f(Index, Index);
-Index gc_psetq_f(Index, Index);
 Index gc_f(Index, Index);
-Index gc_while_f(Index, Index);
-Index gc_until_f(Index, Index);
-Index gc_rplaca_f(Index, Index);
-Index gc_rplacd_f(Index, Index);
-Index gc_function_f(Index, Index);
-Index gc_funcall_f(Index, Index);
-Index gc_dm_f(Index, Index);
-Index gc_backquote_f(Index, Index);
-Index comma_f(Index, Index);
-Index atmark_f(Index, Index);
-Index gc_gensym_f(Index, Index);
-Index quit_f(Index, Index);
-Index gc_num_f(Index, Index);
-Index len_f(Index, Index);
-
+/* From "EVAL.C" */
 Index cons_wrapper(Index, Index);
 Index atom_wrapper(Index, Index);
 Index append_wrapper(Index, Index);
