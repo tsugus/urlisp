@@ -81,19 +81,19 @@ Index assoclist(Index keys, Index values)
   push(values);
   while (nott(atom(keys)) && nott(atom(values)))
   {
-    push(indx);
+    // push(indx);
     indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
     values = cdr(values);
-    pop();
+    // pop();
   }
   if (nott(null(keys)))
   {
-    push(indx);
+    // push(indx);
     indx = cons(cons(keys, values), indx);
     ec;
-    pop();
+    // pop();
   }
   pop();
   pop();
@@ -163,17 +163,11 @@ Index eval(Index exp, Index env)
   else if (exp == Nil)
     result = Nil;
   else if (atom(exp) == T)
-  {
     result = assoc(exp, env);
-  }
   else if (isSUBR(car(exp)) == T)
-  {
     result = apply(car(exp), evlist(cdr(exp), env), env);
-  }
   else
-  {
     result = apply(car(exp), cdr(exp), env);
-  }
   if (err == on)
   {
     print_error(exp, message);
@@ -204,12 +198,12 @@ Index apply(Index func, Index args, Index env)
         return Nil;
     case Car:
       if (atom(car(args)) == T)
-        return error("＂第一引数がリストではない。");
+        return error("The first argument is not a list.");
       else
         return car(car(args));
     case Cdr:
       if (atom(car(args)) == T)
-        return error("＂第一引数がリストではない。");
+        return error("The first argument is not a list.");
       else
         return cdr(car(args));
     case Cons:
