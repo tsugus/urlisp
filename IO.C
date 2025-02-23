@@ -118,18 +118,14 @@ void nameToStr(Index indx, char *str)
 
 Index gc_makeSymbol(char *str)
 {
-  Index cell, cell2;
+  Index cell;
 
   cell = gc_getFreeCell();
   ec;
   push(cell);
   ec;
   car(cell) = gc_strToName(str);
-  cell2 = gc_getFreeCell();
-  ec;
-  cdr(cell) = cell2;
-  car(cell2) = cell;
-  cdr(cell2) = 0;
+  cdr(cell) = Nil;
   tag(cell) = SYMBOL;
   pop();
   return cell;
@@ -137,7 +133,7 @@ Index gc_makeSymbol(char *str)
 
 Index addSymbol(int hash_n, Index symbol)
 {
-  cdr(cdr(symbol)) = symbol_table[hash_n];
+  cdr(symbol) = symbol_table[hash_n];
   symbol_table[hash_n] = symbol;
   return symbol;
 }
@@ -170,7 +166,7 @@ Index gc_getSymbol()
     nameToStr(car(symbol), namebuf2);
     if (!strcmp(namebuf2, namebuf))
       return symbol;
-    symbol = cdr(cdr(symbol));
+    symbol = cdr(symbol);
   }
   symbol = gc_makeSymbol(namebuf);
   ec;
