@@ -105,7 +105,28 @@ Index assoc(Index key, Index lst)
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
-  return error("An identifier that is not in the environment list.");
+  print_error(key, "An identifier that is not in the environment list.");
+  return Nil;
+  // return error("An identifier that is not in the environment list.");
+}
+
+Index importEnv(Index pairlist)
+{
+  environment = rev_append(pairlist, Nil);
+  return Nil;
+}
+
+Index exportEnv()
+{
+  return environment;
+}
+
+Index def(Index var, Index val)
+{
+  push(var);
+  environment = cons(cons(var, val), environment);
+  pop();
+  return var;
 }
 
 Index isSUBR(Index x)
@@ -122,35 +143,6 @@ Index isSUBR(Index x)
   default:
     return Nil;
   }
-}
-
-Index setq(Index var, Index val, Index env)
-{
-  push(var);
-  push(env);
-  push(val);
-  val = eval(val, env);
-  ec;
-  pop();
-  push(val);
-  cdr(env) = cons(car(env), cdr(env));
-  ec;
-  car(env) = cons(var, val);
-  ec;
-  pop();
-  pop();
-  pop();
-  return val;
-}
-
-Index importEnv(Index pairlist)
-{
-  return environment = rev_append(pairlist, Nil);
-}
-
-Index exportEnv()
-{
-  return environment;
 }
 
 Index eval(Index exp, Index env)
@@ -213,15 +205,15 @@ Index apply(Index func, Index args, Index env)
       return evcond(args, env);
     case Eval:
       return eval(car(args), car(cdr(args)));
-    case Setq:
-      return setq(car(args), car(cdr(args)), env);
+    case Gc:
+      mark_and_sweep();
+      return Nil;
     case ImportEnv:
       return importEnv(car(args));
     case ExportEnv:
       return exportEnv();
-    case Gc:
-      mark_and_sweep();
-      return Nil;
+    case Def:
+      return def(car(args), car(cdr(args)));
     default:
       return eval(cons(assoc(func, env), args), env);
     }

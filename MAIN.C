@@ -56,8 +56,9 @@ void initCells()
   sp = 0; /* GC 用スタックポインタ */
 
   /* 環境リストの初期化 */
-  environment = gc_getFreeCell();
-  car(environment) = Nil; /* setq を機能させるためのダミー */
+  environment = 0;
+  // environment = gc_getFreeCell();
+  // car(environment) = Nil; /* setq を機能させるためのダミー */
 
   /* nil の登録 */
   tag(0) = NIL;
@@ -76,10 +77,10 @@ void initCells()
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Eval, "eval");
   gc_addSystemSymbol(Label, "label");
-  gc_addSystemSymbol(Setq, "setq");
+  gc_addSystemSymbol(Gc, "gc");
   gc_addSystemSymbol(ImportEnv, "importenv");
   gc_addSystemSymbol(ExportEnv, "exportenv");
-  gc_addSystemSymbol(Gc, "gc");
+  gc_addSystemSymbol(Def, "def");
 }
 
 void top_loop()
