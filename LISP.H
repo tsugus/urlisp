@@ -41,13 +41,6 @@ enum name
   Nil,
   T,
   Lambda,
-  nLambda,
-  Oblist,
-  Funarg,
-  Macro,
-  Comma,
-  Atmark,
-  Env,
   Quote,
   Atom,
   Eq,
@@ -56,9 +49,11 @@ enum name
   Cons,
   Cond,
   Label,
-  Last,
   Setq,
-  LoadEnv
+  ImportEnv,
+  ExportEnv,
+  Gc,
+  Last
 };
 
 enum ERROR_NUM
@@ -100,7 +95,7 @@ extern Index symbol_table[SYMBOLTABLE_SIZE];
 extern int err;
 extern char *message;
 extern FILE *ifp;
-extern int sp; /* GC 用スタックポインタ */
+extern int sp;            /* GC 用スタックポインタ */
 extern Index environment; /* 環境リスト */
 #endif
 
@@ -120,7 +115,8 @@ void printS(Index);
 Index push(Index);
 Index pop();
 Index purseS(Index);
-Index gc_f(Index, Index);
+void mark_and_sweep();
+// Index gc_f();
 /* From "EVAL.C" */
 Index cons_wrapper(Index, Index);
 Index atom_wrapper(Index, Index);

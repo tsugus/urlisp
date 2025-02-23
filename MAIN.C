@@ -88,7 +88,7 @@ void initCells()
   sp = 0; /* GC 用スタックポインタ */
 
   /* 環境リストの初期化 */
-  environment = 0;
+  environment = Nil;
 
   /* nil の登録 */
   tag(0) = NIL;
@@ -98,15 +98,6 @@ void initCells()
   /* システム・シンボルの登録 */
   gc_addSystemSymbol(T, "t");
   gc_addSystemSymbol(Lambda, "lambda");
-  gc_addSystemSymbol(3, "nlambda");
-  gc_addSystemSymbol(4, "oblist");
-  car(cdr(4)) = 0;
-  gc_addSystemSymbol(5, "funarg");
-  gc_addSystemSymbol(6, "macro");
-  gc_addSystemSymbol(7, "comma");
-  gc_addSystemSymbol(8, "atmark");
-
-//  gc_addSystemSymbol(Env, "*env*");
   gc_addSystemSymbol(Quote, "quote");
   gc_addSystemSymbol(Atom, "atom");
   gc_addSystemSymbol(Eq, "eq");
@@ -116,7 +107,9 @@ void initCells()
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Label, "label");
   gc_addSystemSymbol(Setq, "setq");
-  gc_addSystemSymbol(LoadEnv, "loadenv");
+  gc_addSystemSymbol(ImportEnv, "importenv");
+  gc_addSystemSymbol(ExportEnv, "exportenv");
+  gc_addSystemSymbol(Gc, "gc");
 
   /* Test */
 //  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);

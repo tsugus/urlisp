@@ -6,7 +6,7 @@
 ; =====================================
 ; "Meta-circular" Environment List
 
-(loadenv
+(importenv
 (
   (caar . (lambda (x) (car (car x))))
   (cadr . (lambda (x) (car (cdr x))))
@@ -70,6 +70,7 @@
    . (lambda (exp env)
        (cond
          ((eq exp 't) 't)
+         ((eq exp '()) '())
          ((atom exp) (assoc exp env))
          ((isSUBR (car exp))
           (apply (car exp) (evlist (cdr exp) env) env))

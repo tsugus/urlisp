@@ -147,10 +147,14 @@ Index setq(Index var, Index val, Index env)
   return var;
 }
 
-Index setEnv(Index pairlist)
+Index importEnv(Index pairlist)
 {
-  environment = rev_append(pairlist, Nil);
-  return pairlist;
+  return environment = rev_append(pairlist, Nil);
+}
+
+Index exportEnv()
+{
+  return environment;
 }
 
 Index eval(Index exp, Index env)
@@ -161,6 +165,8 @@ Index eval(Index exp, Index env)
   push(env);
   if (exp == T)
     result = T;
+  else if (exp == Nil)
+    result = Nil;
   else if (atom(exp) == T)
   {
     result = assoc(exp, env);
@@ -213,8 +219,13 @@ Index apply(Index func, Index args, Index env)
       // return assoclist(car(args), car(cdr(args)));
     case Setq:
       return setq(car(args), car(cdr(args)), env);
-    case LoadEnv:
-      return setEnv(car(args));
+    case ImportEnv:
+      return importEnv(car(args));
+    case ExportEnv:
+      return exportEnv();
+    case Gc:
+      mark_and_sweep();
+      return Nil;
     default:
       return eval(cons(assoc(func, env), args), env);
     }
