@@ -107,7 +107,7 @@ Index assoc(Index key, Index lst)
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
-  return error("識別子が環境リストに無い。");
+  return error("An identifier that is not in the environment list.");
 }
 Index assoc_wrapper(Index args, Index env)
 {
@@ -234,7 +234,12 @@ Index apply(Index func, Index args, Index env)
     return (eval(cons(car(cdr(cdr(func))), car(cdr(cdr(func)))), env));
   else if (car(func) == Lambda)
     return eval(car(cdr(cdr(func))), append(assoclist(car(cdr(func)), evlist(args, env)), env));
-  return error("不正な式。");
+  else
+  {
+    printS(car(func));            // テスト
+    printf(" = %d. ", car(func)); // テスト
+    return error("An invalid Expression.");
+  }
 }
 Index apply_wrapper(Index args, Index env)
 {

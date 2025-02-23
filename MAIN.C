@@ -110,17 +110,6 @@ void initCells()
   gc_addSystemSymbol(ImportEnv, "importenv");
   gc_addSystemSymbol(ExportEnv, "exportenv");
   gc_addSystemSymbol(Gc, "gc");
-
-  /* Test */
-//  gc_addFunc("Cons", cons_wrapper, ARGsEVAL);
-//  gc_addFunc("Atom", atom_wrapper, ARGsNotEVAL);
-  gc_addFunc("Append", append_wrapper, ARGsEVAL);
-  gc_addFunc("Assoclist", assoclist_wrapper, ARGsEVAL);
-  gc_addFunc("Assoc", assoc_wrapper, ARGsEVAL);
-  gc_addFunc("Eval", eval, ARGsEVAL);
-  gc_addFunc("Apply", apply_wrapper, ARGsEVAL);
-  gc_addFunc("Evlist", evcond, ARGsEVAL);
-  gc_addFunc("Evlist", evlist, ARGsEVAL);
 }
 
 void top_loop()
