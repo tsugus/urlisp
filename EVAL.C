@@ -21,6 +21,16 @@ Index atom(Index x)
   return (abs(tag(x)) == CELL ? Nil : T);
 }
 
+Index null(Index x)
+{
+  return (x == Nil ? T : Nil);
+}
+
+Index nott(Index x)
+{
+  return (x == Nil ? T : Nil);
+}
+
 Index cons(Index x, Index y)
 {
   Index z;
@@ -34,16 +44,6 @@ Index cons(Index x, Index y)
   pop();
   pop();
   return z;
-}
-
-Index null(Index x)
-{
-  return (x == Nil ? T : Nil);
-}
-
-Index nott(Index x)
-{
-  return (x == Nil ? T : Nil);
 }
 
 Index rev_append(Index x, Index y)
