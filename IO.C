@@ -36,7 +36,6 @@ Index gc_getFreeCell()
   }
   else
   {
-    // gc_f(0, 0);
     mark_and_sweep();
     if (freecells == CELLS_SIZE - 1)
       error("There are no cells available.");
