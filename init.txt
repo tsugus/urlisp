@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for "pure LISP" ;;;;;;
-;; Version 0.0.2
+;; Version 0.0.3
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -64,13 +64,11 @@
              ((eq x 'car) 't)
              ((eq x 'cdr) 't)
              ((eq x 'cons) 't)
-             ((eq x 'eval*) 't)
              (t '()))))
   (eval*
    . (lambda (exp env)
        (cond
          ((eq exp 't) 't)
-         ((eq exp '()) '())
          ((atom exp) (assoc exp env))
          ((isSUBR (car exp))
           (apply* (car exp) (evlist (cdr exp) env) env))
@@ -91,7 +89,6 @@
             ((eq func 'cdr)   (cdr (car args)))
             ((eq func 'cons)  (cons (car args) (cadr args)))
             ((eq func 'cond)  (evcond args env))
-            ((eq func 'eval*)  (eval* (car args) (cadr args)))
             (t (eval* (cons (assoc func env) args) env))))
          ((eq (car func) 'label)
           (eval* (cons (caddr func) args)

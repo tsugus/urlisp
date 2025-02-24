@@ -3,7 +3,6 @@
 /*                                   */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include "LISP.H"
 
@@ -81,15 +80,19 @@ Index assoclist(Index keys, Index values)
   push(values);
   while (nott(atom(keys)) && nott(atom(values)))
   {
+    push(indx);
     indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
     values = cdr(values);
+    pop();
   }
   if (nott(null(keys)))
   {
+    push(indx);
     indx = cons(cons(keys, values), indx);
     ec;
+    pop();
   }
   pop();
   pop();
@@ -101,19 +104,8 @@ Index assoc(Index key, Index lst)
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
-  print_error(key, "An identifier that is not in the environment list.");
+  print_error(key, "Unknown identifier.");
   return Nil;
-}
-
-Index importEnv(Index pairlist)
-{
-  environment = rev_append(pairlist, Nil);
-  return Nil;
-}
-
-Index exportEnv()
-{
-  return environment;
 }
 
 Index def(Index var, Index val)
@@ -134,6 +126,7 @@ Index isSUBR(Index x)
   case Cdr:
   case Cons:
   case Eval:
+  case ImportEnv:
     return T;
   default:
     return Nil;
@@ -208,12 +201,12 @@ Index apply(Index func, Index args, Index env)
         return Nil;
     case Car:
       if (atom(car(args)) == T)
-        return error("The first argument is not a list.");
+        return error("1st item is invalide.");
       else
         return car(car(args));
     case Cdr:
       if (atom(car(args)) == T)
-        return error("The first argument is not a list.");
+        return error("2st item is invalide.");
       else
         return cdr(car(args));
     case Cons:
@@ -226,9 +219,9 @@ Index apply(Index func, Index args, Index env)
       mark_and_sweep();
       return Nil;
     case ImportEnv:
-      return importEnv(car(args));
+      return environment = car(args);
     case ExportEnv:
-      return exportEnv();
+      return environment;
     case Def:
       return def(car(args), car(cdr(args)));
     default:
@@ -245,5 +238,5 @@ Index apply(Index func, Index args, Index env)
                                  evlist(args, env)),
                        env));
   else
-    return error("An invalid Expression.");
+    return error("Invalid expression.");
 }

@@ -1,10 +1,10 @@
 /*                                     */
-/*          p u r e  L I S P           */
+/*             U r L I S P             */
 /*                                     */
 /* This software is released under the */
 /*            MIT License.             */
 /*                                     */
-/*                 (C) 2024-2025 Tsugu */
+/*                      (C) 2025 Tsugu */
 /*                                     */
 
 #define CELLS_SIZE 0x8000   /* セルの総数 */
@@ -30,10 +30,6 @@ enum ID
   SYMBOL, /* ただし NIL を含まない */
   /* セル用 */
   CELL,
-  POINTER, /* C の関数ポインタ */
-  /* アトムの cdr 用 */
-  ARGsEVAL,    /* 関数の引数を評価する */
-  ARGsNotEVAL, /* 関数の引数を評価しない */
 };
 
 enum name
@@ -99,8 +95,6 @@ extern FILE *ifp;
 extern int sp;            /* GC 用スタックポインタ */
 extern Index environment; /* 環境リスト */
 #endif
-
-/* From "MAIN.C" */
 
 /* From "IO.C" */
 Index error(char *);
