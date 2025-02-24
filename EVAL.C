@@ -126,7 +126,6 @@ Index isSUBR(Index x)
   case Cdr:
   case Cons:
   case Eval:
-  case ImportEnv:
     return T;
   default:
     return Nil;
@@ -219,11 +218,11 @@ Index apply(Index func, Index args, Index env)
       mark_and_sweep();
       return Nil;
     case ImportEnv:
-      return environment = car(args);
+      return environment = eval(car(args), env);
     case ExportEnv:
       return environment;
     case Def:
-      return def(car(args), car(cdr(args)));
+      return def(car(args), eval(car(cdr(args)), env));
     default:
       return eval(cons(assoc(func, env), args), env);
     }

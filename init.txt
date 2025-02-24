@@ -1,13 +1,70 @@
 ;;;;; An Initial Program for "pure LISP" ;;;;;;
-;; Version 0.0.3
+;; Version 0.0.5
 ;; (C) 2025 Tsugu
 ;;;;;
+
+; -------------------------------------
+; Test 1
+'Test_1
+
+;; ==> a
+;;
+(eval 'x '((x . a) (y . b)))
+
+;; ==> t
+;;
+(eval '(eq 'a 'a) '())
+
+;; ==> (a b c)
+;;
+(eval '(cons x '(b c)) '((x . a) (y . b)))
+
+;; ==> list
+;;
+(eval '(cond ((atom x) 'atom)
+              (t 'list))
+       '((x '(a b))))
+
+;; ==> (a b c)
+;;
+(eval '(f '(b c))
+       '((f . (lambda (x) (cons 'a x)))))
+
+;; ==> a
+;;
+(eval
+ '((label firstatom
+          (lambda (x)
+            (cond ((atom x) x)
+                  (t (firstatom (car x))))))
+   y)
+ '((y . ((a b) (c d)))))
+
+;; = (a c d)
+;;
+(eval
+ '((lambda (x y) (cons x (cdr y)))
+   'a
+   '(b c d))
+ '())
+
+;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
+;;
+(eval
+ '((label subst
+          (lambda (x y z)
+            (cond ((atom z) (cond ((eq z y) x)
+                                   (t z)))
+                  (t (cons (subst x y (car z))
+                            (subst x y (cdr z)))))))
+   'm 'b '(a b (a b c) d))
+ '())
 
 ; =====================================
 ; "Meta-circular" Environment List
 
-(def plisp
-(
+(def plisp        ; The interpreter program "plisp"
+'(
   (caar . (lambda (x) (car (car x))))
   (cadr . (lambda (x) (car (cdr x))))
   (cdar . (lambda (x) (cdr (car x))))
@@ -64,6 +121,7 @@
              ((eq x 'car) 't)
              ((eq x 'cdr) 't)
              ((eq x 'cons) 't)
+             ((eq x 'eval*) 't)
              (t '()))))
   (eval*
    . (lambda (exp env)
@@ -89,6 +147,7 @@
             ((eq func 'cdr)   (cdr (car args)))
             ((eq func 'cons)  (cons (car args) (cadr args)))
             ((eq func 'cond)  (evcond args env))
+            ((eq func 'eval*)  (eval* (car args) (cadr args) env))  ; alternative "emulation"
             (t (eval* (cons (assoc func env) args) env))))
          ((eq (car func) 'label)
           (eval* (cons (caddr func) args)
@@ -111,130 +170,91 @@
 ))
 
 ; =====================================
-; Test 1
-
-;; ==> a
-;;
-(eval 'x '((x . a) (y . b)))
-
-;; ==> t
-;;
-(eval '(eq 'a 'a) '())
-
-;; ==> (a b c)
-;;
-(eval '(cons x '(b c)) '((x . a) (y . b)))
-
-;; ==> list
-;;
-(eval '(cond ((atom x) 'atom)
-              (t 'list))
-       '((x '(a b))))
-
-;; ==> (a b c)
-;;
-(eval '(f '(b c))
-       '((f . (lambda (x) (cons 'a x)))))
-
-;; ==> a
-;;
-(eval
- '((label firstatom
-          (lambda (x)
-            (cond ((atom x) x)
-                  (t (firstatom (car x))))))
-   y)
- '((y . ((a b) (c d)))))
-
-;; = (a c d)
-;;
-(eval
- '((lambda (x y) (cons x (cdr y)))
-   'a
-   '(b c d))
- '())
-
-;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
-;;
-(eval
- '((label subst
-          (lambda (x y z)
-            (cond ((atom z) (cond ((eq z y) x)
-                                   (t z)))
-                  (t (cons (subst x y (car z))
-                            (subst x y (cdr z)))))))
-   'm 'b '(a b (a b c) d))
- '())
-
-; -------------------------------------
 ; Test 2
+'Test_2
 
 ;; ==> a
 ;;
 (eval
- '(eval* 'x '((x . a) (y . b)))
+ '(eval*
+   '(eval* 'x '((x . a) (y . b)))
+   '())
  plisp)
 
 ;; ==> t
 ;;
 (eval
- '(eval* '(eq 'a 'a) '())
+ '(eval*
+   '(eval* '(eq 'a 'a) '())
+   '())
  plisp)
 
 ;; ==> (a b c)
 ;;
 (eval
- '(eval* '(cons x '(b c)) '((x . a) (y . b)))
+ '(eval*
+   '(eval* '(cons x '(b c)) '((x . a) (y . b)))
+   '())
  plisp)
 
 ;; ==> list
 ;;
 (eval
- '(eval* '(cond ((atom x) 'atom)
-                (t 'list))
-         '((x '(a b))))
+ '(eval*
+   '(eval* '(cond ((atom x) 'atom)
+                  (t 'list))
+           '((x '(a b))))
+   '())
  plisp)
 
 ;; ==> (a b c)
 ;;
 (eval
- '(eval* '(f '(b c))
-         '((f . (lambda (x) (cons 'a x)))))
+ '(eval*
+   '(eval* '(f '(b c))
+           '((f . (lambda (x) (cons 'a x)))))
+   '())
  plisp)
 
 ;; ==> a
 ;;
 (eval
  '(eval*
-   '((label firstatom
-            (lambda (x)
-              (cond ((atom x) x)
-                    (t (firstatom (car x))))))
-     y)
-   '((y . ((a b) (c d)))))
+   '(eval*
+     '((label firstatom
+              (lambda (x)
+                (cond ((atom x) x)
+                      (t (firstatom (car x))))))
+       y)
+     '((y . ((a b) (c d)))))
+   '())
  plisp)
 
 ;; = (a c d)
 ;;
 (eval
  '(eval*
-   '((lambda (x y) (cons x (cdr y)))
-     'a
-     '(b c d))
+   '(eval*
+     '((lambda (x y) (cons x (cdr y)))
+       'a
+       '(b c d))
+     '())
    '())
  plisp)
 
 ;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
-;;
+;; *** It takes time! ***
 (eval
  '(eval*
-   '((label subst
-            (lambda (x y z)
-              (cond ((atom z) (cond ((eq z y) x)
-                                    (t z)))
-                    (t (cons (subst x y (car z))
-                             (subst x y (cdr z)))))))
-     'm 'b '(a b (a b c) d))
+   '(eval*
+     '((label subst
+              (lambda (x y z)
+                (cond ((atom z) (cond ((eq z y) x)
+                                      (t z)))
+                      (t (cons (subst x y (car z))
+                               (subst x y (cdr z)))))))
+       'm 'b '(a b (a b c) d))
+     '())
    '())
  plisp)
 
