@@ -57,8 +57,6 @@ void initCells()
 
   /* 環境リストの初期化 */
   environment = 0;
-  // environment = gc_getFreeCell();
-  // car(environment) = Nil; /* setq を機能させるためのダミー */
 
   /* nil の登録 */
   tag(0) = NIL;
@@ -117,7 +115,7 @@ void greeting()
   printf("\n");
   printf("\t     An pure LISP Interpreter\n\n");
   printf("\t           U r L I S P\n\n");
-  printf("\t          Version 0.0.1\n");
+  printf("\t          Version 0.0.2\n");
   printf("\tThis software is released under the\n");
   printf("\t           MIT License.\n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");

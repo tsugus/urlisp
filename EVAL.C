@@ -81,19 +81,15 @@ Index assoclist(Index keys, Index values)
   push(values);
   while (nott(atom(keys)) && nott(atom(values)))
   {
-    // push(indx);
     indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
     values = cdr(values);
-    // pop();
   }
   if (nott(null(keys)))
   {
-    // push(indx);
     indx = cons(cons(keys, values), indx);
     ec;
-    // pop();
   }
   pop();
   pop();
@@ -107,7 +103,6 @@ Index assoc(Index key, Index lst)
       return cdr(car(lst));
   print_error(key, "An identifier that is not in the environment list.");
   return Nil;
-  // return error("An identifier that is not in the environment list.");
 }
 
 Index importEnv(Index pairlist)
@@ -143,6 +138,28 @@ Index isSUBR(Index x)
   default:
     return Nil;
   }
+}
+
+Index evcond(Index clauses, Index env)
+{
+  for (; nott(null(clauses)); clauses = cdr(clauses))
+    if (nott(null(eval(car(car(clauses)), env))))
+      return eval(car(cdr(car(clauses))), env);
+  return Nil;
+}
+
+Index evlist(Index members, Index env)
+{
+  Index indx;
+
+  for (indx = Nil; nott(null(members)); members = cdr(members))
+  {
+    push(indx);
+    indx = cons(eval(car(members), env), indx);
+    ec;
+    pop();
+  }
+  return rev_append(indx, Nil);
 }
 
 Index eval(Index exp, Index env)
@@ -229,26 +246,4 @@ Index apply(Index func, Index args, Index env)
                        env));
   else
     return error("An invalid Expression.");
-}
-
-Index evcond(Index clauses, Index env)
-{
-  for (; nott(null(clauses)); clauses = cdr(clauses))
-    if (nott(null(eval(car(car(clauses)), env))))
-      return eval(car(cdr(car(clauses))), env);
-  return Nil;
-}
-
-Index evlist(Index members, Index env)
-{
-  Index indx;
-
-  for (indx = Nil; nott(null(members)); members = cdr(members))
-  {
-    push(indx);
-    indx = cons(eval(car(members), env), indx);
-    ec;
-    pop();
-  }
-  return rev_append(indx, Nil);
 }

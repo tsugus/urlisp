@@ -1,6 +1,6 @@
 ;;;;; An Initial Program for "pure LISP" ;;;;;;
-;; Version 0.5.3
-;; (C) 2024-2025 Tsugu
+;; Version 0.0.2
+;; (C) 2025 Tsugu
 ;;;;;
 
 ; =====================================

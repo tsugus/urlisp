@@ -7,7 +7,7 @@
 /*                 (C) 2024-2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x8000  /* セルの総数 */
+#define CELLS_SIZE 0x8000   /* セルの総数 */
 #define TEXTBUF_SIZE 100    /* 入力テキスト用バッファ */
 #define SYMBOLTABLE_SIZE 64 /* シンボルを割り振るハッシュテーブルのサイズ */
 #define STACK_SIZE 0x1000   /* GC 用スタックのサイズ */
@@ -101,7 +101,7 @@ extern Index environment; /* 環境リスト */
 #endif
 
 /* From "MAIN.C" */
-void initCells();
+
 /* From "IO.C" */
 Index error(char *);
 Index gc_getFreeCell();
@@ -115,17 +115,7 @@ void printS(Index);
 /* From "GC.C" */
 Index push(Index);
 Index pop();
-Index purseS(Index);
 void mark_and_sweep();
-// Index gc_f();
 /* From "EVAL.C" */
-Index cons_wrapper(Index, Index);
-Index atom_wrapper(Index, Index);
-Index append_wrapper(Index, Index);
-Index assoclist_wrapper(Index, Index);
-Index assoc_wrapper(Index, Index);
 Index eval(Index, Index);
 Index apply(Index, Index, Index);
-Index apply_wrapper(Index, Index);
-Index evcond(Index, Index);
-Index evlist(Index, Index);

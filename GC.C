@@ -43,14 +43,6 @@ Index purseSymbol(Index indx)
 {
   tag(indx) = abs(tag(indx));
   purseName(car(indx));
-//  if (!cdr(indx))
-//    return indx;
-//  indx = cdr(indx);
-//  tag(indx) = abs(tag(indx));
-//  if (tag(car(indx)) == -CELL) /* 関数定義、あるいは値としての S-式。かつ未訪問 */
-//    purseS(car(indx));
-//  else if (is(car(indx), POINTER))
-//    tag(car(indx)) = POINTER;
   return indx;
 }
 
@@ -146,10 +138,3 @@ void mark_and_sweep()
     }
   }
 }
-/*
-Index gc_f()
-{
-  mark_and_sweep();
-  return 0;
-}
-*/
