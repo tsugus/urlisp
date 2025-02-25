@@ -1,261 +1,74 @@
-;;;;; An Initial Program for "pure LISP" ;;;;;;
-;; Version 0.0.5
-;; (C) 2025 Tsugu
-;;;;;
+;;;; For "UrLISP", which is a minimum interpreter of pure LISP ;;;;
 
-; -------------------------------------
-; Test 1
-'Test_1
+(def list '(lambda x x))
 
-;; ==> a
-;;
-(eval 'x '((x . a) (y . b)))
+; ==> ((list lambda x x))
+(exportenv)
 
-;; ==> t
-;;
-(eval '(eq 'a 'a) '())
+; ==> (a b c)
+(list 'a 'b 'c)
 
-;; ==> (a b c)
-;;
-(eval '(cons x '(b c)) '((x . a) (y . b)))
+(importenv '((x . a) (y . b)))
 
-;; ==> list
-;;
-(eval '(cond ((atom x) 'atom)
-              (t 'list))
-       '((x '(a b))))
+; ==> ((x . a) (y . b))
+(exportenv)
 
-;; ==> (a b c)
-;;
-(eval '(f '(b c))
-       '((f . (lambda (x) (cons 'a x)))))
+; ==> a
+x
+; ==> b
+y
+; ==> Unknown identifier. At list
+list
+; ==> Unknown identifier. At list
+(list 'a 'b 'c)
 
-;; ==> a
-;;
-(eval
- '((label firstatom
-          (lambda (x)
-            (cond ((atom x) x)
-                  (t (firstatom (car x))))))
-   y)
- '((y . ((a b) (c d)))))
+(importenv
+  (cons
+    (cons 'list '(lambda x x))
+    (exportenv)))
 
-;; = (a c d)
-;;
-(eval
- '((lambda (x y) (cons x (cdr y)))
-   'a
-   '(b c d))
- '())
+; ==> ((list lambda x x) (x . a) (y . b))
+(exportenv)
 
-;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
-;;
-(eval
- '((label subst
-          (lambda (x y z)
-            (cond ((atom z) (cond ((eq z y) x)
-                                   (t z)))
-                  (t (cons (subst x y (car z))
-                            (subst x y (cdr z)))))))
-   'm 'b '(a b (a b c) d))
- '())
+; ==> a
+x
+; == b
+; ==> (lambda x x)
+list
+; ==> (a b c)
+(list 'a 'b 'c)
 
-; =====================================
-; "Meta-circular" Environment List
+; Usage of "label"
+(def reverse
+  '(lambda (x)
+    ((label rev-append
+      (lambda (x y)
+        (cond ((eq '() x) y)
+              (t (rev-append (cdr x) (cons (car x) y))))))
+    x '())))
 
-(def plisp        ; The interpreter program "plisp"
-'(
-  (caar . (lambda (x) (car (car x))))
-  (cadr . (lambda (x) (car (cdr x))))
-  (cdar . (lambda (x) (cdr (car x))))
-  (cddr . (lambda (x) (cdr (cdr x))))
-  (caaar . (lambda (x) (car (caar x))))
-  (caadr . (lambda (x) (car (cadr x))))
-  (cadar . (lambda (x) (car (cdar x))))
-  (caddr . (lambda (x) (car (cddr x))))
-  (cdaar . (lambda (x) (cdr (caar x))))
-  (cdadr . (lambda (x) (cdr (cadr x))))
-  (cddar . (lambda (x) (cdr (cdar x))))
-  (cdddr . (lambda (x) (cdr (cddr x))))
-  (caddar . (lambda (x) (car (cddar x))))
-  (null
-   .(lambda (x) (eq x '())))
-  (not
-   .(lambda (x) (cond (x '())
-                      (t 't))))
-  (and
-   . (lambda (x y)
-       (cond ((null x) '())
-             (t (cond (y 't)
-                      (t '()))))))
-  (or
-   . (lambda (x y)
-       (cond (x 't)
-             (t (cond ((null y) '())
-                      (t 't))))))
-  (rev-append
-   . (lambda (l m)
-       (cond ((null l) m)
-             (t (rev-append (cdr l) (cons (car l) m))))))
-  (reverse
-   . (lambda (l) (rev-append l '())))
-  (append
-   . (lambda (l m) (rev-append (rev-append l '()) m)))
-  (assoclist
-   . (lambda (keys values)
-       (cond ((or (null keys) (null values)) '())
-             ((and (not (atom keys)) (not (atom values)))
-              (cons (cons (car keys) (car values))
-                    (assoclist (cdr keys) (cdr values))))
-             ((not (null keys))
-              ((lambda x x) (cons keys values))))))
-  (assoc
-   . (lambda (key lst)
-       (cond ((null lst) '())
-             ((eq key (caar lst)) (cdar lst))
-             (t (assoc key (cdr lst))))))
-  (isSUBR
-   . (lambda (x)
-       (cond ((eq x 'atom) 't)
-             ((eq x 'eq) 't)
-             ((eq x 'car) 't)
-             ((eq x 'cdr) 't)
-             ((eq x 'cons) 't)
-             ((eq x 'eval*) 't)
-             (t '()))))
-  (eval*
-   . (lambda (exp env)
-       (cond
-         ((eq exp 't) 't)
-         ((atom exp) (assoc exp env))
-         ((isSUBR (car exp))
-          (apply* (car exp) (evlist (cdr exp) env) env))
-         (t
-          (apply* (car exp) (cdr exp) env)))))
-  (apply*
-   . (lambda (func args env)
-       (cond
-         ((and (atom func) (not (null func)))
-          (cond
-            ((eq func 'quote) (car args))
-            ((eq func 'atom)  (cond ((atom (car args)) 't)
-                                    (t '())))
-            ((eq func 'eq)    (cond
-                                ((eq (car args) (cadr args)) 't)
-                                (t '())))
-            ((eq func 'car)   (car (car args)))
-            ((eq func 'cdr)   (cdr (car args)))
-            ((eq func 'cons)  (cons (car args) (cadr args)))
-            ((eq func 'cond)  (evcond args env))
-            ((eq func 'eval*)  (eval* (car args) (cadr args) env))  ; alternative "emulation"
-            (t (eval* (cons (assoc func env) args) env))))
-         ((eq (car func) 'label)
-          (eval* (cons (caddr func) args)
-                 (cons (cons (cadr func) (caddr func)) env)))
-         ((eq (car func) 'lambda)
-          (eval* (caddr func)
-                 (append (assoclist (cadr func) (evlist args env))
-                         env))))))
-  (evcond
-   . (lambda (clauses env)
-       (cond ((null clauses) '())
-             ((null (eval* (caar clauses) env))
-              (evcond (cdr clauses) env))
-             (t (eval* (cadar clauses) env)))))
-  (evlist
-   . (lambda (members env)
-       (cond ((null members) '())
-             (t (cons (eval* (car members) env)
-                      (evlist (cdr members) env))))))
-))
+; ==> (e d c b a)
+(reverse '(a b c d e))
 
-; =====================================
-; Test 2
-'Test_2
+; False is the empty list.
+; ==> ()
+(eq 'a 'b)
+; ==> t
+(eq 'a 'a)
 
-;; ==> a
-;;
-(eval
- '(eval*
-   '(eval* 'x '((x . a) (y . b)))
-   '())
- plisp)
+; "Super Brakets" '[' and ']'
+; ==> (d)
+(cdr (cdr (cdr '(a b c d]
+; ==> (x (x y))
+(cons [car (cdr '(p x y] [list (cdr '(p x y]]
+; ==> (a (b (c)))
+; "Unexpected character." is displayed, but it is not a problem.
+; This is because it is actually converted as follows.
+; ==> (quote (a (b (c])
+'(a (b (c]
 
-;; ==> t
-;;
-(eval
- '(eval*
-   '(eval* '(eq 'a 'a) '())
-   '())
- plisp)
+; Initializing of the environment list
+(importenv '())
 
-;; ==> (a b c)
-;;
-(eval
- '(eval*
-   '(eval* '(cons x '(b c)) '((x . a) (y . b)))
-   '())
- plisp)
-
-;; ==> list
-;;
-(eval
- '(eval*
-   '(eval* '(cond ((atom x) 'atom)
-                  (t 'list))
-           '((x '(a b))))
-   '())
- plisp)
-
-;; ==> (a b c)
-;;
-(eval
- '(eval*
-   '(eval* '(f '(b c))
-           '((f . (lambda (x) (cons 'a x)))))
-   '())
- plisp)
-
-;; ==> a
-;;
-(eval
- '(eval*
-   '(eval*
-     '((label firstatom
-              (lambda (x)
-                (cond ((atom x) x)
-                      (t (firstatom (car x))))))
-       y)
-     '((y . ((a b) (c d)))))
-   '())
- plisp)
-
-;; = (a c d)
-;;
-(eval
- '(eval*
-   '(eval*
-     '((lambda (x y) (cons x (cdr y)))
-       'a
-       '(b c d))
-     '())
-   '())
- plisp)
-
-;; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
-;; *** It takes time! ***
-(eval
- '(eval*
-   '(eval*
-     '((label subst
-              (lambda (x y z)
-                (cond ((atom z) (cond ((eq z y) x)
-                                      (t z)))
-                      (t (cons (subst x y (car z))
-                               (subst x y (cdr z)))))))
-       'm 'b '(a b (a b c) d))
-     '())
-   '())
- plisp)
-
-; -------------------------------------
+; Gabage Collection
+(gc)
