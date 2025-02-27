@@ -126,6 +126,7 @@ Index isSUBR(Index x)
   case Cdr:
   case Cons:
   case Eval:
+  case Apply:
     return T;
   default:
     return Nil;
@@ -214,6 +215,8 @@ Index apply(Index func, Index args, Index env)
       return evcond(args, env);
     case Eval:
       return eval(car(args), car(cdr(args)));
+    case Apply:
+      return apply(car(args), car(cdr(args)), env);
     case Gc:
       mark_and_sweep();
       return Nil;
