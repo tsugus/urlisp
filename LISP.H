@@ -45,6 +45,7 @@ enum name
   Cons,
   Cond,
   Eval,
+  Apply,
   Label,
   ImportEnv,
   ExportEnv,

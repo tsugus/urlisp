@@ -74,6 +74,7 @@ void initCells()
   gc_addSystemSymbol(Cons, "cons");
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Eval, "eval");
+  gc_addSystemSymbol(Apply, "apply");
   gc_addSystemSymbol(Label, "label");
   gc_addSystemSymbol(Gc, "gc");
   gc_addSystemSymbol(ImportEnv, "importenv");
@@ -94,10 +95,8 @@ void top_loop()
       char *chp;
 
       printf("%s\n", message);
-      printf("> ");
-      for (chp = textbuf; chp <= txtp; chp++)
-        putchar(*chp);
-      putchar('\n');
+      if ((*txtp - 1) != EOF) /* init.txt を読み込んだときに > を表示させない */
+        printf("> %c\n", *(txtp - 1));
       *txtp = '\0';
       continue;
     }
@@ -113,11 +112,11 @@ void top_loop()
 void greeting()
 {
   printf("\n");
-  printf("\t     An pure LISP Interpreter\n\n");
-  printf("\t           U r L I S P\n\n");
-  printf("\t          Version 0.0.5\n");
+  printf("\t  A Minimal Pure LISP Interpreter  \n\n");
+  printf("\t            U r L I S P            \n\n");
+  printf("\t           Version 0.0.6           \n");
   printf("\tThis software is released under the\n");
-  printf("\t           MIT License.\n\n");
+  printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");
 }
 
