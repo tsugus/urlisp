@@ -28,7 +28,7 @@ Index gc_getFreeCell()
 {
   Index indx;
 
-  if (freecells != CELLS_SIZE - 1) /* 最後尾のセルは使わないフリーセル */
+  if (freecells != CELLS_SIZE - 1) /* The last cell is a freecell that is not used. */
   {
     indx = freecells;
     freecells = cdr(freecells);
@@ -196,7 +196,7 @@ Index gc_makeatom_sub(char *str)
   cell2 = gc_getFreeCell();
   ec;
   txtp2 = txtp;
-  txtp = str; /* 末尾にスペースが必要 */
+  txtp = str; /* A trailing space required */
   car(cell) = gc_getSymbol();
   ec;
   txtp = ++txtp2;
@@ -209,32 +209,8 @@ Index gc_makeatom_sub(char *str)
 
 Index gc_makeAtom()
 {
-  /* $ は単独でシンボルの先頭に使えない。 */
-  if (*txtp == '$' && *(txtp + 1) != '$')
-  {
-    txtp++;
-    return gc_getSymbol();
-  }
-  /* 省略記法 */
-  if (*txtp == '\'')
+  if (*txtp == '\'') /* Shorthand */
     return gc_makeatom_sub("quote ");
-  if (*txtp == '`')
-    return gc_makeatom_sub("backquote ");
-  if (*txtp == ',' && *(txtp + 1) == '@')
-  {
-    txtp++;
-    return gc_makeatom_sub("atmark ");
-  }
-  if (*txtp == ',' && *(txtp + 1) != '@')
-    return gc_makeatom_sub("comma ");
-  if (*txtp == '#' && '0' <= *(txtp + 1) && *(txtp + 1) <= '9')
-    return gc_makeatom_sub("num ");
-  if (*txtp == '#' && *(txtp + 1) == '\'')
-  {
-    txtp++;
-    return gc_makeatom_sub("function ");
-  }
-
   return gc_getSymbol();
 }
 
@@ -360,7 +336,7 @@ Index gc_readS(Index from_top)
     return gc_makeList(from_top);
   else if (!isSeparator(*txtp))
     return gc_makeAtom();
-  else if (*txtp++ == ']') /* ']' は入力のための補助記号なので特別扱い。開きカッコはそもそもここに来ない */
+  else if (*txtp++ == ']') /* ']' is treated specially because it is an auxiliary character for input. The opening parenthesis does not come here in the first place. */
     return gc_readS(from_top);
   else
     return error("Unexpected character.");

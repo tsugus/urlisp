@@ -21,8 +21,9 @@ char *message;
 FILE *ifp;
 int sp;
 Index environment;
+int no_input_after_GC;
 
-/* インデックス n のセルに name を持つシンボルを作ってテーブルに登録 */
+/* Give a name to the cell with index n, make it a symbol, and register it in the table. */
 void gc_addSystemSymbol(Index n, char *name)
 {
   car(n) = gc_strToName(name);
@@ -35,7 +36,7 @@ void initCells()
   Index indx;
   int i;
 
-  /* フリーセル・リストの連結 */
+  /* Freecell linking */
   for (indx = 0; indx < CELLS_SIZE - 1; indx++)
   {
     car(indx) = 0;
@@ -45,25 +46,25 @@ void initCells()
   car(CELLS_SIZE - 1) = 0;
   cdr(CELLS_SIZE - 1) = 0;
 
-  /* シンボルテーブルの初期化 */
+  /* Initializing the symbol table */
   for (i = 0; i < SYMBOLTABLE_SIZE; i++)
     symbol_table[i] = 0;
 
-  /* フリーセルの先頭位置の初期化 */
-  freecells = Last; /* last より小さいインデックスは予約済み */
+  /* Initializing the top position of freecells */
+  freecells = Last; /* Indexes smaller than 'Last' are reserved. */
 
-  /* sp の初期化 */
-  sp = 0; /* GC 用スタックポインタ */
+  /* Initialization of the stack pointer for GC */
+  sp = 0;
 
-  /* 環境リストの初期化 */
+  /* Initializing the environment list */
   environment = 0;
 
-  /* nil の登録 */
+  /* Registering 'nil' */
   tag(0) = NIL;
   car(0) = 0;
   cdr(0) = 0;
 
-  /* システム・シンボルの登録 */
+  /* Registering system symbols */
   gc_addSystemSymbol(T, "t");
   gc_addSystemSymbol(Lambda, "lambda");
   gc_addSystemSymbol(Quote, "quote");
@@ -90,12 +91,13 @@ void top_loop()
   {
     err = off;
     toplevel = gc_readS(1);
+    no_input_after_GC = 0;
     if (err != off)
     {
       char *chp;
 
       printf("%s\n", message);
-      if ((*txtp - 1) != EOF) /* init.txt を読み込んだときに > を表示させない */
+      if ((*txtp - 1) != EOF) /* Don't display '>' when "init.txt" is loaded. */
         printf("> %c\n", *(txtp - 1));
       *txtp = '\0';
       continue;
@@ -103,6 +105,8 @@ void top_loop()
     toplevel = eval(toplevel, environment);
     if (err == off)
     {
+      if (no_input_after_GC)
+        putchar('\n');
       printS(toplevel);
       putchar('\n');
     }
@@ -114,7 +118,7 @@ void greeting()
   printf("\n");
   printf("\t  A Minimal Pure LISP Interpreter  \n\n");
   printf("\t            U r L I S P            \n\n");
-  printf("\t           Version 0.0.6           \n");
+  printf("\t           Version 0.0.7           \n");
   printf("\tThis software is released under the\n");
   printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");
@@ -136,7 +140,7 @@ int main()
   }
   ifp = stdin;
   initCells();
-  ifp = fopen("init.txt", "r"); /* 起動時に読み込む LISP プログラム */
+  ifp = fopen("init.txt", "r"); /* LISP programs to load at startup */
   if (ifp == NULL)
   {
     printf("\"init.txt\" is missing. Please prepare an empty init.txt file.\n");

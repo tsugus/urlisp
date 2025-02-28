@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for "UrLISP" ;;;;;;
-;; Version 0.0.6
+;; Version 0.0.7
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -216,7 +216,8 @@ y            ; ==> b
 
 ; -------------------------------------
 ;; Test 2
-; (Of course, these can be achieved much more efficiently by implementing 'eval*' calls within 'apply*'.)
+; (Of course, these can be achieved much more efficiently
+; by implementing 'eval*' calls within 'apply*'.)
 'Test_2
 
 ; ==> a
@@ -290,18 +291,18 @@ y            ; ==> b
 
 ; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
 ; *** It takes time! ***
-;(eval
-; '(eval*
-;   '(eval*
-;     '((label subst
-;              (lambda (x y z)
-;                (cond ((atom z) (cond ((eq z y) x)
-;                                      (t z)))
-;                      (t (cons (subst x y (car z))
-;                               (subst x y (cdr z)))))))
-;       'm 'b '(a b (a b c) d))
-;     '())
-;   plisp)
-; plisp)
+(eval
+ '(eval*
+   '(eval*
+     '((label subst
+              (lambda (x y z)
+                (cond ((atom z) (cond ((eq z y) x)
+                                      (t z)))
+                      (t (cons (subst x y (car z))
+                               (subst x y (cdr z)))))))
+       'm 'b '(a b (a b c) d))
+     '())
+   plisp)
+ plisp)
 
 ; -------------------------------------

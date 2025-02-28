@@ -7,28 +7,26 @@
 /*                      (C) 2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x10000  /* セルの総数 */
-#define TEXTBUF_SIZE 100    /* 入力テキスト用バッファ */
-#define SYMBOLTABLE_SIZE 64 /* シンボルを割り振るハッシュテーブルのサイズ */
-#define STACK_SIZE 0x2000   /* GC 用スタックのサイズ */
-#define tag(x) (tags[x])    /* ID を格納するタグ */
+#define CELLS_SIZE 0x10000  /* Total number of cells */
+#define TEXTBUF_SIZE 100    /* Input text buffer */
+#define SYMBOLTABLE_SIZE 64 /* Size of the hash table for symbols */
+#define STACK_SIZE 0x2000   /* Size of the stack for Gabage Collection */
+#define tag(x) (tags[x])    /* Tag to store ID */
 #define car(x) (cells[x].pair.car).index
 #define cdr(x) (cells[x].pair.cdr).index
 #define cas(x) (cells[x].pair.car).string
 #define cds(x) (cells[x].pair.cdr).string
-#define p_f(x) (cells[x].p_f)                 /* 関数ポインタ */
-#define is(x, y) (abs(tag(x)) == (y) ? 1 : 0) /* x のタグの値は y か ? */
-/* エラー時の大局脱出用マクロ */
+#define p_f(x) (cells[x].p_f)                 /* Function pointer */
+#define is(x, y) (abs(tag(x)) == (y) ? 1 : 0) /* Is the tag value of x y ? */
+/* Macro for global escape in case of error */
 #define ec \
   if (err) \
   return (0)
 
 enum ID
 {
-  /* アトム用 */
   NIL,
-  SYMBOL, /* ただし NIL を含まない */
-  /* セル用 */
+  SYMBOL, /* However, it does not include NIL. */
   CELL,
 };
 
@@ -93,8 +91,9 @@ extern Index symbol_table[SYMBOLTABLE_SIZE];
 extern int err;
 extern char *message;
 extern FILE *ifp;
-extern int sp;            /* GC 用スタックポインタ */
-extern Index environment; /* 環境リスト */
+extern int sp;            /* The stack pointer for GC */
+extern Index environment; /* The Environment list */
+extern int no_input_after_GC;
 #endif
 
 /* From "IO.C" */
