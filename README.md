@@ -14,3 +14,11 @@ By the way, "init.txt" is loaded as a program file at startup.
 ## How to compile
 
 Execute Makefile with GCC or Clang.
+
+## Starting UrLISP
+
+In the console, run the file we just compiled and generated, "lisp" (rename it to your liking).
+
+## Exiting UrLISP
+
+Please press Ctrl+C.
