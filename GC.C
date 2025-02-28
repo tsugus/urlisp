@@ -56,7 +56,6 @@ Index purseAtom(Index indx)
     purseSymbol(indx);
     ec;
     nameToStr(car(indx), namebuf);
-    /* シンボルテーブルの検索（機能が gc_getSymbol と重複している！） */
     hash_n = hash(namebuf);
     symbol = symbol_table[hash_n];
     while (symbol)
@@ -69,7 +68,7 @@ Index purseAtom(Index indx)
       }
       symbol = cdr(symbol);
     }
-    /* indx がシンボルテーブルにない場合 */
+    /* If 'indx' is not in the symbol table */
     if (!symbol)
       addSymbol(hash(namebuf), indx);
   }
@@ -109,25 +108,27 @@ void mark_and_sweep()
   Index indx;
   int i;
 
-  printf("... Gabage Collection ! ...\n");
-  /* マイナスで印をつける */
+  putchar('.');   /* A sign that GC has started */
+  fflush(stdout); /* To display sequentially */
+  no_input_after_GC = 1;
+  /* Mark with a minus sign. */
   for (indx = 0; indx < CELLS_SIZE; indx++)
     tag(indx) = -abs(tag(indx));
-  /* フリーセルの印は取り消す */
+  /* Cancel freeCells' mark. */
   for (indx = freecells; indx; indx = cdr(indx))
     tag(indx) = CELL;
-  /* シンボルテーブルはご破算 */
+  /* The symbol table is rebuilt. */
   for (i = 0; i < SYMBOLTABLE_SIZE; i++)
     symbol_table[i] = 0;
-  /* S-式をたどって ID がマイナスのセルを取り除く */
-  /* 同時に、空にしたテーブルにシンボルを追加し直す */
+  /* Scanning the S-expression, remove cells with a negative ID, */
+  /* and re-add the symbols to the empty table. */
   purseS(environment);
-  for (i = 0; i < Last; i++) /* 0 から last-1 は予約シンボルのインデックス */
+  for (i = 0; i < Last; i++) /* 0 to 'Last'-1 are the indexes of reserved symbols */
     purseS(i);
   for (i = 0; i < sp; i++)
     purseS(stack[i]);
-  /* タグの ID がマイナスのセルをフリーセルに戻す */
-  for (indx = CELLS_SIZE - 2; indx > 0; indx--) /* 最後尾のセルは「番兵」 */
+  /* Return cells with a negative tag ID to freecells. */
+  for (indx = CELLS_SIZE - 2; indx > 0; indx--) /* The last cell is the "sentinel". */
   {
     if (tag(indx) < 0)
     {

@@ -6,14 +6,13 @@
 #include <stdlib.h>
 #include "LISP.H"
 
-/* エラー表示 */
 void print_error(Index form, char *msg)
 {
   printf("%s\n", msg);
   printf("At ");
   printS(form);
   putchar('\n');
-  err = print_no_more; /* これ以上、表示しない */
+  err = print_no_more;
 }
 
 Index atom(Index x)
