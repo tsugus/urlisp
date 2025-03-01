@@ -147,26 +147,35 @@ int hash(char *str)
   return hash_n;
 }
 
+/* Find the symbol with the name in 'symbol_table[hash_n]'. */
+Index findSymbol(int hash_n, char *name)
+{
+  Index symbol;
+  char strbuf[TEXTBUF_SIZE];
+
+  symbol = symbol_table[hash_n];
+  while (symbol) /* If not found, returns 0. */
+  {
+    nameToStr(car(symbol), strbuf);
+    if (!strcmp(strbuf, name))
+      return symbol;
+    symbol = cdr(symbol);
+  }
+  return symbol;
+}
+
 Index gc_getSymbol()
 {
   int i, hash_n;
   Index symbol;
 
-  i = 0;
-  for (; !isSeparator(*txtp); i++)
-  {
+  for (i = 0; !isSeparator(*txtp); i++)
     namebuf[i] = *(txtp++);
-  }
   namebuf[i] = '\0';
   hash_n = hash(namebuf);
-  symbol = symbol_table[hash_n];
-  while (symbol)
-  {
-    nameToStr(car(symbol), namebuf2);
-    if (!strcmp(namebuf2, namebuf))
-      return symbol;
-    symbol = cdr(symbol);
-  }
+  symbol = findSymbol(hash_n, namebuf);
+  if (symbol)
+    return symbol;
   symbol = gc_makeSymbol(namebuf);
   ec;
   addSymbol(hash_n, symbol);
@@ -175,7 +184,7 @@ Index gc_getSymbol()
 
 void printSymbol(Index atom)
 {
-  if (!atom) /* nil 表示のため */
+  if (!atom) /* For nil display */
   {
     printf("()");
     return;
@@ -211,6 +220,13 @@ Index gc_makeAtom()
 {
   if (*txtp == '\'') /* Shorthand */
     return gc_makeatom_sub("quote ");
+  if (*txtp == '#' && '0' <= *(txtp + 1) && *(txtp + 1) <= '9')
+    return gc_makeatom_sub("num ");
+  if (*txtp == '#' && *(txtp + 1) == '=')
+  {
+    txtp++;
+    return gc_makeatom_sub("len ");
+  }
   return gc_getSymbol();
 }
 

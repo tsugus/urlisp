@@ -35,6 +35,7 @@ enum name
   Nil,
   T,
   Lambda,
+  Label,
   Quote,
   Atom,
   Eq,
@@ -44,11 +45,14 @@ enum name
   Cond,
   Eval,
   Apply,
-  Label,
+  Gc,
   ImportEnv,
   ExportEnv,
   Def,
-  Gc,
+  Num,
+  Len,
+  Quit,
+  Cls,
   Last
 };
 
@@ -81,7 +85,6 @@ typedef union CELL
 #ifndef MAIN
 extern char textbuf[TEXTBUF_SIZE];
 extern char namebuf[TEXTBUF_SIZE];
-extern char namebuf2[TEXTBUF_SIZE];
 extern char *tags;
 extern Cell *cells;
 extern Index stack[STACK_SIZE];
@@ -104,6 +107,7 @@ void nameToStr(Index, char *);
 Index gc_makeSymbol(char *);
 Index addSymbol(int, Index);
 int hash(char *);
+Index findSymbol(int, char *);
 Index gc_readS(Index);
 void printS(Index);
 /* From "GC.C" */

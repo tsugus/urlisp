@@ -57,20 +57,9 @@ Index purseAtom(Index indx)
     ec;
     nameToStr(car(indx), namebuf);
     hash_n = hash(namebuf);
-    symbol = symbol_table[hash_n];
-    while (symbol)
-    {
-      nameToStr(car(symbol), namebuf2);
-      if (!strcmp(namebuf2, namebuf))
-      {
-        symbol = indx;
-        break;
-      }
-      symbol = cdr(symbol);
-    }
-    /* If 'indx' is not in the symbol table */
-    if (!symbol)
-      addSymbol(hash(namebuf), indx);
+    symbol = findSymbol(hash_n, namebuf);
+    if (!symbol) /* If 'indx' is not in the symbol table */
+      addSymbol(hash_n, indx);
   }
   return indx;
 }
@@ -120,14 +109,13 @@ void mark_and_sweep()
   /* The symbol table is rebuilt. */
   for (i = 0; i < SYMBOLTABLE_SIZE; i++)
     symbol_table[i] = 0;
-  /* Scanning the S-expression, remove cells with a negative ID, */
-  /* and re-add the symbols to the empty table. */
+  /* Scanning the S-expression, remove cells with a negative ID, and re-add the symbols to the empty table. */
   purseS(environment);
   for (i = 0; i < Last; i++) /* 0 to 'Last'-1 are the indexes of reserved symbols */
     purseS(i);
   for (i = 0; i < sp; i++)
     purseS(stack[i]);
-  /* Return cells with a negative tag ID to freecells. */
+  /* Recycle cells with a negative tag ID to freecells. */
   for (indx = CELLS_SIZE - 2; indx > 0; indx--) /* The last cell is the "sentinel". */
   {
     if (tag(indx) < 0)
