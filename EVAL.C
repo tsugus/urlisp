@@ -63,10 +63,6 @@ Index append(Index x, Index y)
 {
   return rev_append(rev_append(x, Nil), y);
 }
-Index append_wrapper(Index args, Index env)
-{
-  return append(car(args), car(cdr(args)));
-}
 
 Index assoclist(Index keys, Index values)
 {
@@ -126,6 +122,7 @@ Index isSUBR(Index x)
   case Cons:
   case Eval:
   case Apply:
+  case Len:
     return T;
   default:
     return Nil;
@@ -135,8 +132,14 @@ Index isSUBR(Index x)
 Index evcond(Index clauses, Index env)
 {
   for (; nott(null(clauses)); clauses = cdr(clauses))
+  {
+    if (is(clauses, SYMBOL))
+      return error("Invalid clause");
+    if (is(car(clauses), SYMBOL))
+      return error("Invalid clause");
     if (nott(null(eval(car(car(clauses)), env))))
       return eval(car(cdr(car(clauses))), env);
+  }
   return Nil;
 }
 
@@ -178,6 +181,56 @@ Index eval(Index exp, Index env)
   pop();
   pop();
   return result;
+}
+
+Index num(Index arg)
+{
+  Index num, indx, result;
+  int i;
+
+  if (!is(arg, SYMBOL))
+    error("the argument is an list.");
+  nameToStr(car(arg), namebuf);
+  num = atoi(namebuf);
+  result = 0;
+  for (i = 0; i < num; i++)
+  {
+    indx = gc_getFreeCell();
+    ec;
+    car(indx) = 1;
+    cdr(indx) = result;
+    result = indx;
+  }
+  return result;
+}
+
+Index len(Index arg)
+{
+  Index indx;
+  int i;
+
+  if (is(arg, SYMBOL))
+    error("the argument is an atom.");
+  for (i = 0; arg; arg = cdr(arg))
+    if (i++ < 0)
+      return error("Numeric overflow.");
+  sprintf(namebuf, "%d", i);
+  return gc_makeSymbol(namebuf);
+}
+
+Index quit()
+{
+  free(cells);
+  free(tags);
+  exit(0);
+}
+
+Index cls()
+{
+  printf("\033[2J");   /* Clear the screen. */
+  printf("\033[0;0H"); /* Move the cursor to (0,0). */
+  err = print_no_more;
+  return 0;
 }
 
 Index apply(Index func, Index args, Index env)
@@ -225,6 +278,14 @@ Index apply(Index func, Index args, Index env)
       return environment;
     case Def:
       return def(car(args), eval(car(cdr(args)), env));
+    case Num:
+      return num(car(args));
+    case Len:
+      return len(car(args));
+    case Quit:
+      return quit();
+    case Cls:
+      return cls();
     default:
       return eval(cons(assoc(func, env), args), env);
     }

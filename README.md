@@ -4,7 +4,7 @@
 
 This name doesn't mean "You are LISP".
 It means "primitive LISP".
-This program is an interpreter of so-called "pure LISP".
+UrLISP is an interpreter of so-called "pure LISP".
 
 It supports "super brackets" '[', ']' to group and close brackets together.
 
@@ -22,3 +22,7 @@ In the console, run the file we just compiled and generated, "lisp" (rename it t
 ## Exiting UrLISP
 
 Please press Ctrl+C.
+
+Or
+
+    % (quit)

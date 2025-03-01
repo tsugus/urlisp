@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for "UrLISP" ;;;;;;
-;; Version 0.0.7
+;; Version 0.0.8
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -12,7 +12,7 @@
 ;  label, lambda
 
 ;; Unique Functions:
-;  importenv, exportenv, def
+;  importenv, exportenv, def, cls, quit
 
 ; -------------------------------------
 ;; Usage
@@ -42,6 +42,107 @@ y            ; ==> b
 
 ; Initializing of the environment list
 (importenv '())
+
+; Screen Clear
+; (cls)
+
+; Exit UrLISP
+; (quit)
+
+; -------------------------------------
+; Functions of Puseud Numbers (inefficient!)
+
+'Number_Test
+'0 #0  '1 #1  '2 #2  '3 #3  '4 #4  '5 #5
+
+(def +1
+  '(lambda (x) (cons 't x)))
+
+(def -1
+  '(lambda (x)
+     (cond ((eq #0 x) '())
+           (t (cdr x)))))
+
+(def +
+  '(lambda (x y)
+     (cond ((eq #0 y) x)
+           (t (+ (+1 x) (-1 y))))))
+
+(def *
+  '(lambda (x y)
+     ((label *rec
+             (lambda (x y acc)
+               (cond ((eq #0 y) acc)
+                     (t (*rec x (-1 y) (+ acc x))))))
+      x y '())))
+
+(def -
+  '(lambda (x y)
+     (cond ((eq #0 y) x)
+           (t (- (-1 x) (-1 y))))))
+
+(def |-|
+  '(lambda (x y)
+     (+ (- x y) (- y x))))
+
+(def =
+  '(lambda (x y)
+     (eq #0 (|-| x y))))
+
+(def <
+  '(lambda (x y)
+     (cond ((- y x) 't))))
+
+(def >
+  '(lambda (x y)
+     (cond ((- x y) 't))))
+
+(def /
+  '(lambda (x y)
+     ((label /rec
+             (lambda (x y acc)
+               (cond ((< x y) acc)
+                     (t (/rec (- x y) y (+1 acc))))))
+      x y '())))
+
+(def %
+  '(lambda (x y)
+     (cond ((< x y) x)
+           ((= x y) #0)
+           (t (% (- x y) y)))))
+
+'365_/_12_=_30
+#=(/ #365 #12)
+
+'365_%_12_=_5
+#=(% #365 #12)
+
+(def fibo
+  '(lambda (n)
+     ((label fibo-rec
+             (lambda (n pre sum)
+               (cond
+                 ((eq #0 n) sum)
+                 (t (fibo-rec (-1 n) sum (+ pre sum))))))
+      n #1 #0)))
+
+(gc)
+'fibo_Test
+#=(fibo #0)
+#=(fibo #1)
+#=(fibo #2)
+#=(fibo #3)
+#=(fibo #4)
+#=(fibo #5)
+#=(fibo #6)
+#=(fibo #7)
+#=(fibo #8)
+#=(fibo #9)
+#=(fibo #10)
+#=(fibo #11)
+#=(fibo #12)
+#=(fibo #13)
+(gc)
 
 ; =====================================
 ;; Meta-circular Evaluator
@@ -291,18 +392,18 @@ y            ; ==> b
 
 ; (subst 'm 'b '(a b (a b c) d)) => (a m (a m c) d)
 ; *** It takes time! ***
-(eval
- '(eval*
-   '(eval*
-     '((label subst
-              (lambda (x y z)
-                (cond ((atom z) (cond ((eq z y) x)
-                                      (t z)))
-                      (t (cons (subst x y (car z))
-                               (subst x y (cdr z)))))))
-       'm 'b '(a b (a b c) d))
-     '())
-   plisp)
- plisp)
+;(eval
+; '(eval*
+;   '(eval*
+;     '((label subst
+;              (lambda (x y z)
+;                (cond ((atom z) (cond ((eq z y) x)
+;                                      (t z)))
+;                      (t (cons (subst x y (car z))
+;                               (subst x y (cdr z)))))))
+;       'm 'b '(a b (a b c) d))
+;     '())
+;   plisp)
+; plisp)
 
 ; -------------------------------------

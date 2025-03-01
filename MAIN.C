@@ -9,7 +9,6 @@
 
 char textbuf[TEXTBUF_SIZE];
 char namebuf[TEXTBUF_SIZE];
-char namebuf2[TEXTBUF_SIZE];
 char *tags;
 Cell *cells;
 Index stack[STACK_SIZE];
@@ -67,6 +66,7 @@ void initCells()
   /* Registering system symbols */
   gc_addSystemSymbol(T, "t");
   gc_addSystemSymbol(Lambda, "lambda");
+  gc_addSystemSymbol(Label, "label");
   gc_addSystemSymbol(Quote, "quote");
   gc_addSystemSymbol(Atom, "atom");
   gc_addSystemSymbol(Eq, "eq");
@@ -76,11 +76,14 @@ void initCells()
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Eval, "eval");
   gc_addSystemSymbol(Apply, "apply");
-  gc_addSystemSymbol(Label, "label");
   gc_addSystemSymbol(Gc, "gc");
   gc_addSystemSymbol(ImportEnv, "importenv");
   gc_addSystemSymbol(ExportEnv, "exportenv");
   gc_addSystemSymbol(Def, "def");
+  gc_addSystemSymbol(Num, "num");
+  gc_addSystemSymbol(Len, "len");
+  gc_addSystemSymbol(Quit, "quit");
+  gc_addSystemSymbol(Cls, "cls");
 }
 
 void top_loop()
@@ -118,7 +121,7 @@ void greeting()
   printf("\n");
   printf("\t  A Minimal Pure LISP Interpreter  \n\n");
   printf("\t            U r L I S P            \n\n");
-  printf("\t           Version 0.0.7           \n");
+  printf("\t           Version 0.0.8           \n");
   printf("\tThis software is released under the\n");
   printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");
