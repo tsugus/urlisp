@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for "UrLISP" ;;;;;;
-;; Version 0.0.8
+;; Version 0.1.0
 ;; (C) 2025 Tsugu
 ;;;;;
 
