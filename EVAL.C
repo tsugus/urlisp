@@ -105,8 +105,12 @@ Index assoc(Index key, Index lst)
 
 Index def(Index var, Index val)
 {
+  Index env;
+
   push(var);
-  environment = cons(cons(var, val), environment);
+  env = cons(cons(var, val), environment);
+  if (env != Nil) /* A workaround for unquoted lambda expressions clearing the environment list. */
+    environment = env;
   pop();
   return var;
 }
