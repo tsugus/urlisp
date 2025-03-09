@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for "UrLISP" ;;;;;;
-;; Version 0.1.0
+;; Version 0.1.1
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -280,6 +280,7 @@ plisp))
 ;
 (def plisp (cons (cons 'plisp plisp) plisp))
 
+'Test_of_eval*_&_reverse2
 (eval
  '(eval*
    '(reverse2 '(1 2 3 4 5))
@@ -287,8 +288,9 @@ plisp))
  plisp)
 
 ; Cancellation of two "(def plisp ...)"s
+; However, it displays 't' instead of the loaded environment list.
 ;
-(importenv (cdr (cdr (exportenv))))
+(cond ((importenv (cdr (cdr (exportenv)))) 't))
 
 (gc)
 
