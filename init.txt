@@ -1,5 +1,5 @@
-;;;;; An Initial Program for "UrLISP" ;;;;;;
-;; Version 0.1.1
+;;;;; An Initial Program for UrLISP ;;;;;;
+;; Version 0.1.2
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -186,47 +186,48 @@ y            ; ==> b
   (evcond
    . (lambda (clauses env)
        (cond ((null clauses) '())
-             ((null (eval* (caar clauses) env))
+             ((null (eval (caar clauses) env))
               (evcond (cdr clauses) env))
-             (t (eval* (cadar clauses) env)))))
+             (t (eval (cadar clauses) env)))))
   (evlist
    . (lambda (members env)
        (cond ((null members) '())
-             (t (cons (eval* (car members) env)
+             (t (cons (eval (car members) env)
                       (evlist (cdr members) env))))))
-  (apply*
+  (apply
    . (lambda (func args env)
        (cond
          ((and (atom func) (not (null func)))
           (cond
             ((eq func 'quote) (car args))
-            ((eq func 'atom)  (cond ((atom (car args)) 't)
-                                    (t '())))
-            ((eq func 'eq)    (cond
-                                ((eq (car args) (cadr args)) 't)
-                                (t '())))
-            ((eq func 'car)   (car (car args)))
-            ((eq func 'cdr)   (cdr (car args)))
-            ((eq func 'cons)  (cons (car args) (cadr args)))
-            ((eq func 'cond)  (evcond args env))
-            (t (eval* (cons (assoc func env) args) env))))
+            ((eq func 'atom) (cond ((atom (car args)) 't)
+                                   (t '())))
+            ((eq func 'eq) (cond
+                             ((eq (car args) (cadr args)) 't)
+                             (t '())))
+            ((eq func 'car) (car (car args)))
+            ((eq func 'cdr) (cdr (car args)))
+            ((eq func 'cons) (cons (car args) (cadr args)))
+            ((eq func 'cond) (evcond args env))
+            ((eq func 'eval) (eval (car args) (cadr args)))
+            (t (eval (cons (assoc func env) args) env))))
          ((eq (car func) 'label)
-          (eval* (cons (caddr func) args)
-                 (cons (cons (cadr func) (caddr func)) env)))
+          (eval (cons (caddr func) args)
+                (cons (cons (cadr func) (caddr func)) env)))
          ((eq (car func) 'lambda)
-          (eval* (caddr func)
-                 (append (assoclist (cadr func) (evlist args env))
-                         env))))))
-  (eval*
-   . (lambda (exp env)
+          (eval (caddr func)
+                (append (assoclist (cadr func) (evlist args env))
+                        env))))))
+  (eval
+   . (lambda (form env)
        (cond
-         ((eq exp 't) 't)
-         ((eq exp '()) '())
-         ((atom exp) (assoc exp env))
-         ((isSUBR (car exp))
-          (apply* (car exp) (evlist (cdr exp) env) env))
+         ((eq form 't) 't)
+         ((eq form '()) '())
+         ((atom form) (assoc form env))
+         ((isSUBR (car form))
+          (apply (car form) (evlist (cdr form) env) env))
          (t
-          (apply* (car exp) (cdr exp) env)))))
+          (apply (car form) (cdr form) env)))))
 ))
 
 ; =====================================
@@ -280,9 +281,9 @@ plisp))
 ;
 (def plisp (cons (cons 'plisp plisp) plisp))
 
-'Test_of_eval*_&_reverse2
+'Test_of_eval_&_reverse2
 (eval
- '(eval*
+ '(eval
    '(reverse2 '(1 2 3 4 5))
    plisp)
  plisp)
