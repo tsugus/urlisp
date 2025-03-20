@@ -358,16 +358,32 @@ Index gc_readS(Index from_top)
     return error("Unexpected character.");
 }
 
-void printS(Index indx)
+Index printS(Index indx)
 {
   if (!is(indx, CELL))
+  {
+    if (printed_symbols > MAX_PRINT_SYMBOL)
+    {
+      char str[3];
+
+      printf("\nReached the max number of continuously displayable symbols. Continue? (y/n): ");
+      scanf("%s", str);
+      str[2] = '\0';
+      if (!strcmp(str, "y") || !strcmp(str, "Y"))
+        printed_symbols = 0;
+      else
+        return error("");
+    }
     printAtom(indx);
+    printed_symbols++;
+  }
   else
   {
     putchar('(');
     for (;;)
     {
       printS(car(indx));
+      ec;
       indx = cdr(indx);
       if (!is(indx, CELL))
         break;
@@ -380,4 +396,5 @@ void printS(Index indx)
     }
     putchar(')');
   }
+  return 0;
 }

@@ -45,6 +45,22 @@ Index cons(Index x, Index y)
   return z;
 }
 
+Index rplaca(Index x, Index y)
+{
+  if (!is(x, CELL))
+    return error("the 1st argument is an atom.");
+  car(x) = y;
+  return x;
+}
+
+Index rplacd(Index x, Index y)
+{
+  if (!is(x, CELL))
+    return error("the 1st argument is an atom.");
+  cdr(x) = y;
+  return x;
+}
+
 Index rev_append(Index x, Index y)
 {
   push(x);
@@ -124,6 +140,8 @@ Index isSUBR(Index x)
   case Car:
   case Cdr:
   case Cons:
+  case Rplaca:
+  case Rplacd:
   case Eval:
   case Apply:
   case Len:
@@ -267,6 +285,10 @@ Index apply(Index func, Index args, Index env)
         return cdr(car(args));
     case Cons:
       return cons(car(args), car(cdr(args)));
+    case Rplaca:
+      return rplaca(car(args), car(cdr(args)));
+    case Rplacd:
+      return rplacd(car(args), car(cdr(args)));
     case Cond:
       return evcond(args, env);
     case Eval:

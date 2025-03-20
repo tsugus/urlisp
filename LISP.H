@@ -7,11 +7,12 @@
 /*                      (C) 2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x10000  /* Total number of cells */
-#define TEXTBUF_SIZE 100    /* Input text buffer */
-#define SYMBOLTABLE_SIZE 64 /* Size of the hash table for symbols */
-#define STACK_SIZE 0x2000   /* Size of the stack for Gabage Collection */
-#define tag(x) (tags[x])    /* Tag to store ID */
+#define CELLS_SIZE 0x10000     /* Total number of cells */
+#define TEXTBUF_SIZE 100       /* Input text buffer */
+#define SYMBOLTABLE_SIZE 64    /* Size of the hash table for symbols */
+#define STACK_SIZE 0x2000      /* Size of the stack for Gabage Collection */
+#define MAX_PRINT_SYMBOL 10000 /* Max number of the displayable symbols with 'printS()' */
+#define tag(x) (tags[x])       /* Tag to store ID */
 #define car(x) (cells[x].pair.car).index
 #define cdr(x) (cells[x].pair.cdr).index
 #define cas(x) (cells[x].pair.car).string
@@ -42,6 +43,8 @@ enum name
   Car,
   Cdr,
   Cons,
+  Rplaca,
+  Rplacd,
   Cond,
   Eval,
   Apply,
@@ -97,6 +100,7 @@ extern FILE *ifp;
 extern int sp;            /* The stack pointer for GC */
 extern Index environment; /* The Environment list */
 extern int no_input_after_GC;
+extern int printed_symbols; /* The number of printed symbol wuth 'printS()' */
 #endif
 
 /* From "IO.C" */
@@ -109,7 +113,7 @@ Index addSymbol(int, Index);
 int hash(char *);
 Index findSymbol(int, char *);
 Index gc_readS(Index);
-void printS(Index);
+Index printS(Index);
 /* From "GC.C" */
 Index push(Index);
 Index pop();

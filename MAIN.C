@@ -21,6 +21,7 @@ FILE *ifp;
 int sp;
 Index environment;
 int no_input_after_GC;
+int printed_symbols;
 
 /* Give a name to the cell with index n, make it a symbol, and register it in the table. */
 void gc_addSystemSymbol(Index n, char *name)
@@ -73,6 +74,8 @@ void initCells()
   gc_addSystemSymbol(Car, "car");
   gc_addSystemSymbol(Cdr, "cdr");
   gc_addSystemSymbol(Cons, "cons");
+  gc_addSystemSymbol(Rplaca, "rplaca");
+  gc_addSystemSymbol(Rplacd, "rplacd");
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Eval, "eval");
   gc_addSystemSymbol(Apply, "apply");
@@ -95,6 +98,7 @@ void top_loop()
     err = off;
     toplevel = gc_readS(1);
     no_input_after_GC = 0;
+    printed_symbols = 0;
     if (err != off)
     {
       char *chp;
@@ -121,7 +125,7 @@ void greeting()
   printf("\n");
   printf("\t  A Minimal Pure LISP Interpreter  \n\n");
   printf("\t            U r L I S P            \n\n");
-  printf("\t           Version 0.1.0           \n");
+  printf("\t           Version 0.1.1           \n");
   printf("\tThis software is released under the\n");
   printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");
