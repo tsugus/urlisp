@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for UrLISP ;;;;;;
-;; Version 0.1.2
+;; Version 0.1.3
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -230,9 +230,46 @@ y            ; ==> b
           (apply (car form) (cdr form) env)))))
 ))
 
+; -------------------------------------
+;; Compleat self-embeding
+
+(def plisp-pair '(plisp))
+(def plisp (cons plisp-pair plisp))
+(cond ((rplacd plisp-pair plisp)))  ; 'cond' to avoid displaying circular lists
+
+; -------------------------------------
+;; "Pseudo interpretor" functions
+
+; The global environment list '*env*'
+;
+(def *env* plisp)
+
+; Add (x . y) to *env*.
+;
+(def <<
+  '(lambda (x y)
+     (cond
+       ((cond
+          ((rplacd plisp-pair (cons (cons x y) *env*))
+           (def *env* (cons (cons x y) *env*))))  ; Note! Not reflected immediately.
+        x))))
+
+; Eval x on the environment list.
+;
+(def >> '(lambda (x) (eval x *env*)))
+
+; Reset *env*.
+;
+(def reset!
+  '(lambda ()
+     (cond
+       ((cond
+          ((def *env* plisp)
+           (rplacd plisp-pair plisp)))
+        't))))
 ; =====================================
 ;; Test 1
-'Tese_1
+'Test_1
 
 'Number_Test
 '0 #0  '1 #1  '2 #2  '3 #3  '4 #4  '5 #5
@@ -260,39 +297,31 @@ y            ; ==> b
 #=(fibo #12)
 #=(fibo #13)
 
-; -------------------------------------
+; ---------------------------------------
 ;; Test 2
 'Test_2
 
-; 'reverse2' defined on 'plisp'
+; Ex. 1
 ;
-(def plisp (cons (cons
- 'reverse2
- '(lambda (x)
-    ((label
-      rec
-      (lambda (x y)
-        (cond ((null x) y)
-              (t (rec (cdr x) (cons (car x) y))))))
-     x '())))
-plisp))
-
-; Self-embeding
+(<< 'reverse2
+    '(lambda (x)
+       ((label
+         rec
+         (lambda (x y)
+           (cond ((null x) y)
+                 (t (rec (cdr x) (cons (car x) y))))))
+        x '())))
 ;
-(def plisp (cons (cons 'plisp plisp) plisp))
+(<< 'list2 '(lambda x x))
 
-'Test_of_eval_&_reverse2
-(eval
- '(eval
-   '(reverse2 '(1 2 3 4 5))
-   plisp)
- plisp)
-
-; Cancellation of two "(def plisp ...)"s
-; However, it displays 't' instead of the loaded environment list.
+; Ex. 2
 ;
-(cond ((importenv (cdr (cdr (exportenv)))) 't))
+(>> '(eval '(eval '(eval '(reverse2 '(a b c d)) plisp) plisp) plisp))
+(>> '(eval '(eval '(eval '(list2 'x 'y 'z) plisp) plisp) plisp))
 
-(gc)
-
-; -------------------------------------
+; Ex. 3
+;
+(>> '(eval '(eval '(eval 'reverse2 plisp) plisp) plisp))
+(reset!)
+(>> '(eval '(eval '(eval 'reverse2 plisp) plisp) plisp))
+(>> '(eval '(eval '(eval '(cddr '(a b c d)) plisp) plisp) plisp))
