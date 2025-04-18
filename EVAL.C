@@ -15,6 +15,25 @@ void print_error(Index form, char *msg)
   err = print_no_more;
 }
 
+Index error_(Index code, Index form)
+{
+  switch (code)
+  {
+  case Num1:
+    printf("Not found");
+    break;
+  case Num2:
+    printf("Invalid form");
+    break;
+  default:
+    printf("Error");
+  }
+  printf(": ");
+  printS(form);
+  putchar('\n');
+  return Nil;
+}
+
 Index atom(Index x)
 {
   return (abs(tag(x)) == CELL ? Nil : T);
@@ -115,7 +134,8 @@ Index assoc(Index key, Index lst)
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
-  print_error(key, "Unknown identifier.");
+  error_(Num1, key);
+  err = print_no_more;
   return Nil;
 }
 
@@ -179,25 +199,25 @@ Index evlist(Index members, Index env)
   return rev_append(indx, Nil);
 }
 
-Index eval(Index exp, Index env)
+Index eval(Index form, Index env)
 {
   Index result;
 
-  push(exp);
+  push(form);
   push(env);
-  if (exp == T)
+  if (form == T)
     result = T;
-  else if (exp == Nil)
+  else if (form == Nil)
     result = Nil;
-  else if (atom(exp) == T)
-    result = assoc(exp, env);
-  else if (isSUBR(car(exp)) == T)
-    result = apply(car(exp), evlist(cdr(exp), env), env);
+  else if (atom(form) == T)
+    result = assoc(form, env);
+  else if (isSUBR(car(form)) == T)
+    result = apply(car(form), evlist(cdr(form), env), env);
   else
-    result = apply(car(exp), cdr(exp), env);
+    result = apply(car(form), cdr(form), env);
   if (err == on)
   {
-    print_error(exp, message);
+    print_error(form, message);
     return Nil;
   }
   pop();
@@ -274,13 +294,17 @@ Index apply(Index func, Index args, Index env)
       else
         return Nil;
     case Car:
-      if (atom(car(args)) == T)
-        return error("1st item is invalide.");
+      if (car(args) == Nil)
+        return Nil;
+      else if (atom(car(args)) == T)
+        return error("1st item is invalid.");
       else
         return car(car(args));
     case Cdr:
-      if (atom(car(args)) == T)
-        return error("2st item is invalide.");
+      if (car(args) == Nil)
+        return Nil;
+      else if (atom(car(args)) == T)
+        return error("1st item is invalid.");
       else
         return cdr(car(args));
     case Cons:
@@ -295,6 +319,8 @@ Index apply(Index func, Index args, Index env)
       return eval(car(args), car(cdr(args)));
     case Apply:
       return apply(car(args), car(cdr(args)), env);
+    case Error:
+      return error_(car(args), car(cdr(args)));
     case Gc:
       mark_and_sweep();
       return Nil;
@@ -326,5 +352,9 @@ Index apply(Index func, Index args, Index env)
                                  evlist(args, env)),
                        env));
   else
-    return error("Invalid expression.");
+  {
+    error_(Num2, cons(func, args));
+    err = print_no_more;
+    return Nil;
+  }
 }

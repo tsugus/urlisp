@@ -21,7 +21,6 @@ FILE *ifp;
 int sp;
 Index environment;
 int no_input_after_GC;
-int printed_symbols;
 
 /* Give a name to the cell with index n, make it a symbol, and register it in the table. */
 void gc_addSystemSymbol(Index n, char *name)
@@ -79,6 +78,7 @@ void initCells()
   gc_addSystemSymbol(Cond, "cond");
   gc_addSystemSymbol(Eval, "eval");
   gc_addSystemSymbol(Apply, "apply");
+  gc_addSystemSymbol(Error, "error");
   gc_addSystemSymbol(Gc, "gc");
   gc_addSystemSymbol(ImportEnv, "importenv");
   gc_addSystemSymbol(ExportEnv, "exportenv");
@@ -87,6 +87,8 @@ void initCells()
   gc_addSystemSymbol(Len, "len");
   gc_addSystemSymbol(Quit, "quit");
   gc_addSystemSymbol(Cls, "cls");
+  gc_addSystemSymbol(Num1, "1");
+  gc_addSystemSymbol(Num2, "2");
 }
 
 void top_loop()
@@ -98,7 +100,6 @@ void top_loop()
     err = off;
     toplevel = gc_readS(1);
     no_input_after_GC = 0;
-    printed_symbols = 0;
     if (err != off)
     {
       char *chp;
@@ -125,7 +126,7 @@ void greeting()
   printf("\n");
   printf("\t  A Minimal Pure LISP Interpreter  \n\n");
   printf("\t            U r L I S P            \n\n");
-  printf("\t           Version 0.1.1           \n");
+  printf("\t           Version 0.1.3           \n");
   printf("\tThis software is released under the\n");
   printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");
