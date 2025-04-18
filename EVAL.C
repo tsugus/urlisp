@@ -31,6 +31,7 @@ Index error_(Index code, Index form)
   printf(": ");
   printS(form);
   putchar('\n');
+  err = print_no_more;
   return Nil;
 }
 
@@ -135,7 +136,6 @@ Index assoc(Index key, Index lst)
     if (key == car(car(lst)))
       return cdr(car(lst));
   error_(Num1, key);
-  err = print_no_more;
   return Nil;
 }
 
@@ -164,6 +164,7 @@ Index isSUBR(Index x)
   case Rplacd:
   case Eval:
   case Apply:
+  case Error:
   case Len:
     return T;
   default:
