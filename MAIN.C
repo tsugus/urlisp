@@ -67,6 +67,8 @@ void initCells()
   gc_addSystemSymbol(T, "t");
   gc_addSystemSymbol(Lambda, "lambda");
   gc_addSystemSymbol(Label, "label");
+  gc_addSystemSymbol(Funarg, "funarg");
+  gc_addSystemSymbol(Function, "function");
   gc_addSystemSymbol(Quote, "quote");
   gc_addSystemSymbol(Atom, "atom");
   gc_addSystemSymbol(Eq, "eq");

@@ -36,6 +36,8 @@ enum name
   T,
   Lambda,
   Label,
+  Funarg,
+  Function,
   Quote,
   Atom,
   Eq,

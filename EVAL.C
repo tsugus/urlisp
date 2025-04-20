@@ -212,7 +212,10 @@ Index eval(Index form, Index env)
     result = Nil;
   else if (atom(form) == T)
     result = assoc(form, env);
-  else if (isSUBR(car(form)) == T)
+  else if (isSUBR(car(form)) == T ||
+           (is(car(form), CELL) &&
+            ((car(car(form)) == Lambda) ||
+             (car(car(form))) == Funarg)))
     result = apply(car(form), evlist(cdr(form), env), env);
   else
     result = apply(car(form), cdr(form), env);
@@ -349,9 +352,7 @@ Index apply(Index func, Index args, Index env)
                      env));
   else if (car(func) == Lambda)
     return eval(car(cdr(cdr(func))),
-                append(assoclist(car(cdr(func)),
-                                 evlist(args, env)),
-                       env));
+                append(assoclist(car(cdr(func)), args), env));
   else
   {
     error_(Num2, cons(func, args));
