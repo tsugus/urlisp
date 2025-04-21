@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for UrLISP ;;;;;;
-;; Version 0.1.5
+;; Version 0.2.0
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -8,11 +8,11 @@
 ;  Dynamic Scope, Lisp-1
 
 ;; Supported Functions & Special Forms:
-;  quote, atom, eq, car, cdr, cons, cond, eval, apply,
-;  label, lambda
+;  quote, atom, eq, car, cdr, cons, cond, eval, apply, function,
+;  label, funarg, lambda
 
 ;; Unique Functions:
-;  importenv, exportenv, def, cls, quit
+;  importenv, exportenv, def, cls, quit, error
 
 ; -------------------------------------
 ;; Usage
@@ -185,6 +185,7 @@ y            ; ==> b
                ((eq x 'cdr) 't)
                ((eq x 'cons) 't)
                ; ((eq x 'eval*) 't)  ; "bypass"
+               ((eq x 'apply) 't)
                ((eq x 'error) 't)
                (t '()))))
     (evcond
@@ -214,15 +215,19 @@ y            ; ==> b
               ((eq func 'cons) (cons (car args) (cadr args)))
               ((eq func 'cond) (evcond args env))
               ; ((eq func 'eval*) (eval* (car args) (cadr args)))  ; "bypass"
+              ((eq func 'apply) (apply* (car args) (cadr args) env))
+              ((eq func 'function) (list 'funarg (car args) env))
+              ((eq func 'funarg) (cons func args))
               ((eq func 'error) (error (car args) (cadr args)))
               (t (eval* (cons (assoc func env) args) env))))
            ((eq (car func) 'label)
             (eval* (cons (caddr func) args)
-                  (cons (cons (cadr func) (caddr func)) env)))
+                   (cons (cons (cadr func) (caddr func)) env)))
+           ((eq (car func) 'funarg)
+            (apply* (cadr func) args (caddr func)))
            ((eq (car func) 'lambda)
             (eval* (caddr func)
-                  (append (assoclist (cadr func) (evlist args env))
-                          env)))
+                   (append (assoclist (cadr func) args) env)))
            (t (error '2 (cons func args))))))
     (eval*
      . (lambda (form env)
@@ -230,7 +235,10 @@ y            ; ==> b
            ((eq form 't) 't)
            ((eq form '()) '())
            ((atom form) (assoc form env))
-           ((isSUBR (car form))
+           ((or (isSUBR (car form))
+                (cond ((not (or (atom (car form)) (null (car form))))
+                       (or (eq (caar form) 'funarg)
+                           (eq (caar form) 'lambda)))))
             (apply* (car form) (evlist (cdr form) env) env))
            (t
             (apply* (car form) (cdr form) env)))))
@@ -275,6 +283,18 @@ y            ; ==> b
           ((def *env* plisp)
            (rplacd plisp-pair plisp)))
         't))))
+
+; -------------------------------------
+; Z-combinator
+
+(<< 'funcall
+    '(lambda (f . x) (apply f x)))
+
+(<< 'z-combi
+    '(lambda (f)
+       (funcall
+        (function (lambda (y) (f (function (lambda x (apply (y y) x))))))
+        (function (lambda (y) (f (function (lambda x (apply (y y) x)))))))))
 
 ; =====================================
 ;; Test 1
@@ -321,16 +341,34 @@ y            ; ==> b
                  (t (rec (cdr x) (cons (car x) y))))))
         x '())))
 ;
+'reverse2
+(>> '(reverse2 '(1 2 3 4 5 6 7 8 9 10)))
+;
+(<< 'reverse_z
+    '(lambda (l)
+       (funcall
+        (z-combi
+         (function (lambda (f)
+                     (function (lambda (l acc)
+                                 (cond
+                                   ((eq '() l) acc)
+                                   (t (f (cdr l)
+                                         (cons (car l) acc)))))))))
+        l '())))
+;
+'reverse_z
+(>> '(reverse_z '(1 2 3 4 5 6 7 8 9 10)))
+;
 (<< 'list2 '(lambda x x))
 
 ; Ex. 2
 ;
-(>> '(eval* '(eval* '(reverse2 '(a b c d)) plisp) plisp))
+(>> '(eval* '(eval* '(reverse_z '(a b c d)) plisp) plisp))
 (>> '(eval* '(eval* '(list2 'x 'y 'z) plisp) plisp))
 
 ; Ex. 3
 ;
-(>> '(eval* '(eval* 'reverse2 plisp) plisp))
+(>> '(eval* '(eval* 'reverse_z plisp) plisp))
 (reset!)
-(>> '(eval* '(eval* 'reverse2 plisp) plisp))
+(>> '(eval* '(eval* 'reverse_z plisp) plisp))
 (>> '(eval* '(eval* '(cddr '(a b c d)) plisp) plisp))
