@@ -222,6 +222,11 @@ Index gc_makeAtom()
     return gc_makeatom_sub("quote ");
   if (*txtp == '#' && '0' <= *(txtp + 1) && *(txtp + 1) <= '9')
     return gc_makeatom_sub("num ");
+  if (*txtp == '#' && *(txtp + 1) == '\'')
+  {
+    txtp++;
+    return gc_makeatom_sub("function ");
+  }
   if (*txtp == '#' && *(txtp + 1) == '=')
   {
     txtp++;
