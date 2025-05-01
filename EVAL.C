@@ -55,7 +55,9 @@ Index cons(Index x, Index y)
   Index z;
 
   push(x);
+  ec;
   push(y);
+  ec;
   z = gc_getFreeCell();
   ec;
   car(z) = x;
@@ -84,9 +86,11 @@ Index rplacd(Index x, Index y)
 Index rev_append(Index x, Index y)
 {
   push(x);
+  ec;
   for (; x != Nil; x = cdr(x))
   {
     push(y);
+    ec;
     y = cons(car(x), y);
     ec;
     pop();
@@ -108,10 +112,13 @@ Index assoclist(Index keys, Index values)
     return Nil;
   indx = Nil;
   push(keys);
+  ec;
   push(values);
+  ec;
   while (nott(atom(keys)) && nott(atom(values)))
   {
     push(indx);
+    ec;
     indx = cons(cons(car(keys), car(values)), indx);
     ec;
     keys = cdr(keys);
@@ -121,6 +128,7 @@ Index assoclist(Index keys, Index values)
   if (nott(null(keys)))
   {
     push(indx);
+    ec;
     indx = cons(cons(keys, values), indx);
     ec;
     pop();
@@ -144,6 +152,7 @@ Index def(Index var, Index val)
   Index env;
 
   push(var);
+  ec;
   env = cons(cons(var, val), environment);
   if (env != Nil) /* A workaround for unquoted lambda expressions clearing the environment list. */
     environment = env;
@@ -193,6 +202,7 @@ Index evlist(Index members, Index env)
   for (indx = Nil; nott(null(members)); members = cdr(members))
   {
     push(indx);
+    ec;
     indx = cons(eval(car(members), env), indx);
     ec;
     pop();
@@ -205,7 +215,9 @@ Index eval(Index form, Index env)
   Index result;
 
   push(form);
+  ec;
   push(env);
+  ec;
   if (form == T)
     result = T;
   else if (form == Nil)

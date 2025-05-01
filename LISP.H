@@ -7,7 +7,7 @@
 /*                      (C) 2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x10000  /* Total number of cells */
+#define CELLS_SIZE 0x8000   /* Total number of cells */
 #define TEXTBUF_SIZE 100    /* Input text buffer */
 #define SYMBOLTABLE_SIZE 64 /* Size of the hash table for symbols */
 #define STACK_SIZE 0x2000   /* Size of the stack for Gabage Collection */
