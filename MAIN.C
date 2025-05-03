@@ -7,6 +7,10 @@
 #include <stdlib.h>
 #include "LISP.H"
 
+/* For Turbo C 2.0. Comment out if necessary. */
+#include <dos.h>
+extern unsigned _stklen = 60000; /* the stack size is 60000 */
+
 char textbuf[TEXTBUF_SIZE];
 char namebuf[TEXTBUF_SIZE];
 char *tags;
@@ -67,8 +71,6 @@ void initCells()
   gc_addSystemSymbol(T, "t");
   gc_addSystemSymbol(Lambda, "lambda");
   gc_addSystemSymbol(Label, "label");
-  gc_addSystemSymbol(Funarg, "funarg");
-  gc_addSystemSymbol(Function, "function");
   gc_addSystemSymbol(Quote, "quote");
   gc_addSystemSymbol(Atom, "atom");
   gc_addSystemSymbol(Eq, "eq");
@@ -128,7 +130,7 @@ void greeting()
   printf("\n");
   printf("\t  A Minimal Pure LISP Interpreter  \n\n");
   printf("\t            U r L I S P            \n\n");
-  printf("\t           Version 0.2.2           \n");
+  printf("\t           Version 0.3.0           \n");
   printf("\tThis software is released under the\n");
   printf("\t            MIT License.           \n\n");
   printf("\t                     (C) 2025 Tsugu\n\n");

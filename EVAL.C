@@ -224,10 +224,7 @@ Index eval(Index form, Index env)
     result = Nil;
   else if (atom(form) == T)
     result = assoc(form, env);
-  else if (isSUBR(car(form)) == T ||
-           (is(car(form), CELL) &&
-            ((car(car(form)) == Lambda) ||
-             (car(car(form))) == Funarg)))
+  else if (isSUBR(car(form)) == T)
     result = apply(car(form), evlist(cdr(form), env), env);
   else
     result = apply(car(form), cdr(form), env);
@@ -325,10 +322,6 @@ Index apply(Index func, Index args, Index env)
         return cdr(car(args));
     case Cons:
       return cons(car(args), car(cdr(args)));
-    case Function:
-      return cons(Funarg, cons(car(args), cons(env, Nil)));
-    case Funarg:
-      return cons(func, args);
     case Rplaca:
       return rplaca(car(args), car(cdr(args)));
     case Rplacd:
@@ -366,11 +359,11 @@ Index apply(Index func, Index args, Index env)
     return eval(cons(car(cdr(cdr(func))), args),
                 cons(cons(car(cdr(func)), car(cdr(cdr(func)))),
                      env));
-  else if (car(func) == Funarg)
-    return apply(car(cdr(func)), args, car(cdr(cdr(func))));
   else if (car(func) == Lambda)
     return eval(car(cdr(cdr(func))),
-                append(assoclist(car(cdr(func)), args), env));
+                append(assoclist(car(cdr(func)),
+                                 evlist(args, env)),
+                       env));
   else
   {
     error_(Num2, cons(func, args));

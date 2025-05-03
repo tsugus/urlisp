@@ -7,10 +7,10 @@
 /*                      (C) 2025 Tsugu */
 /*                                     */
 
-#define CELLS_SIZE 0x3000   /* Total number of cells */
+#define CELLS_SIZE 0x3800  /* Total number of cells */
 #define TEXTBUF_SIZE 100    /* Input text buffer */
 #define SYMBOLTABLE_SIZE 64 /* Size of the hash table for symbols */
-#define STACK_SIZE 0x2000   /* Size of the stack for Gabage Collection */
+#define STACK_SIZE 0x3000   /* Size of the stack for Gabage Collection */
 #define tag(x) (tags[x])    /* Tag to store ID */
 #define car(x) (cells[x].pair.car).index
 #define cdr(x) (cells[x].pair.cdr).index
@@ -36,8 +36,6 @@ enum name
   T,
   Lambda,
   Label,
-  Funarg,
-  Function,
   Quote,
   Atom,
   Eq,

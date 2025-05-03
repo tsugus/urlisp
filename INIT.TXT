@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for UrLISP ;;;;;;
-;; Version 0.2.1
+;; Version 0.3.0
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -8,8 +8,7 @@
 ;  Dynamic Scope, Lisp-1
 
 ;; Supported Functions & Special Forms:
-;  quote('), atom, eq, car, cdr, cons, cond, eval, apply, function(#'),
-;  label, funarg, lambda
+;  quote('), atom, eq, car, cdr, cons, cond, eval, label, lambda
 
 ;; Unique Functions:
 ;  importenv, exportenv, def, cls, quit, error
@@ -184,8 +183,6 @@ y            ; ==> b
                ((eq x 'car) 't)
                ((eq x 'cdr) 't)
                ((eq x 'cons) 't)
-               ; ((eq x 'eval*) 't)  ; "bypass"
-               ((eq x 'apply) 't)
                ((eq x 'error) 't)
                (t '()))))
     (evcond
@@ -214,20 +211,15 @@ y            ; ==> b
               ((eq func 'cdr) (cdr (car args)))
               ((eq func 'cons) (cons (car args) (cadr args)))
               ((eq func 'cond) (evcond args env))
-              ; ((eq func 'eval*) (eval* (car args) (cadr args)))  ; "bypass"
-              ((eq func 'apply) (apply* (car args) (cadr args) env))
-              ((eq func 'function) (list 'funarg (car args) env))
-              ((eq func 'funarg) (cons func args))
               ((eq func 'error) (error (car args) (cadr args)))
               (t (eval* (cons (assoc func env) args) env))))
            ((eq (car func) 'label)
             (eval* (cons (caddr func) args)
                    (cons (cons (cadr func) (caddr func)) env)))
-           ((eq (car func) 'funarg)
-            (apply* (cadr func) args (caddr func)))
            ((eq (car func) 'lambda)
             (eval* (caddr func)
-                   (append (assoclist (cadr func) args) env)))
+                   (append (assoclist (cadr func) (evlist args env))
+                           env)))
            (t (error '2 (cons func args))))))
     (eval*
      . (lambda (form env)
@@ -235,23 +227,17 @@ y            ; ==> b
            ((eq form 't) 't)
            ((eq form '()) '())
            ((atom form) (assoc form env))
-           ((or (isSUBR (car form))
-                (cond ((not (or (atom (car form)) (null (car form))))
-                       (or (eq (caar form) 'funarg)
-                           (eq (caar form) 'lambda)))))
+           ((isSUBR (car form))
             (apply* (car form) (evlist (cdr form) env) env))
            (t
             (apply* (car form) (cdr form) env)))))
     ))
 
-; -------------------------------------
-;; Compleat self-embeding
+; =====================================
+;; (Incomplete) Self-embeding
 
-(def plisp-pair '(plisp))
+(def plisp-pair (cons 'plisp plisp))
 (def plisp (cons plisp-pair plisp))
-(cond ((rplacd plisp-pair plisp)))  ; 'cond' to avoid displaying circular lists
-
-; Note! 'plisp' is now a circular list, so don't print it.
 
 ; -------------------------------------
 ;; "Pseudo interpretor" functions
@@ -285,6 +271,66 @@ y            ; ==> b
         't))))
 
 ; -------------------------------------
+;; Redefine
+
+(<< 'isSUBR
+    '(lambda (x)
+       (cond ((eq x 'atom) 't)
+             ((eq x 'eq) 't)
+             ((eq x 'car) 't)
+             ((eq x 'cdr) 't)
+             ((eq x 'cons) 't)
+             ((eq x 'eval*) 't)
+             ((eq x 'apply) 't)
+             ((eq x 'error) 't)
+             (t '()))))
+
+(<< 'apply*
+    '(lambda (func args env)
+       (cond
+         ((and (atom func) (not (null func)))
+          (cond
+            ((eq func 'quote) (car args))
+            ((eq func 'atom) (cond ((atom (car args)) 't)
+                                   (t '())))
+            ((eq func 'eq) (cond
+                             ((eq (car args) (cadr args)) 't)
+                             (t '())))
+            ((eq func 'car) (car (car args)))
+            ((eq func 'cdr) (cdr (car args)))
+            ((eq func 'cons) (cons (car args) (cadr args)))
+            ((eq func 'cond) (evcond args env))
+            ((eq func 'eval*) (eval* (car args) (cadr args)))
+            ((eq func 'apply) (apply* (car args) (cadr args) env))
+            ((eq func 'function) (list 'funarg (car args) env))
+            ((eq func 'funarg) (cons func args))
+            ((eq func 'error) (error (car args) (cadr args)))
+            (t (eval* (cons (assoc func env) args) env))))
+         ((eq (car func) 'label)
+          (eval* (cons (caddr func) args)
+                 (cons (cons (cadr func) (caddr func)) env)))
+         ((eq (car func) 'funarg)
+          (apply* (cadr func) args (caddr func)))
+         ((eq (car func) 'lambda)
+          (eval* (caddr func)
+                 (append (assoclist (cadr func) args) env)))
+         (t (error '2 (cons func args))))))
+
+(<< 'eval*
+    '(lambda (form env)
+       (cond
+         ((eq form 't) 't)
+         ((eq form '()) '())
+         ((atom form) (assoc form env))
+         ((or (isSUBR (car form))
+              (cond ((not (or (atom (car form)) (null (car form))))
+                     (or (eq (caar form) 'funarg)
+                         (eq (caar form) 'lambda)))))
+          (apply* (car form) (evlist (cdr form) env) env))
+         (t
+          (apply* (car form) (cdr form) env)))))
+
+; -------------------------------------
 ; Z-combinator
 
 (<< 'funcall
@@ -296,18 +342,18 @@ y            ; ==> b
         #'(lambda (y) (f #'(lambda x (apply (y y) x))))
         #'(lambda (y) (f #'(lambda x (apply (y y) x)))))))
 
-; =====================================
+; -------------------------------------
 ;; Test 1
 'Test_1
 
 'Number_Test
 '0 #0  '1 #1  '2 #2  '3 #3  '4 #4  '5 #5
 
-'365_/_12_=_30
-#=(/ #365 #12)
+'100_/_12_=_8
+#=(/ #100 #12)
 
-'365_%_12_=_5
-#=(% #365 #12)
+'100_%_12_=_4
+#=(% #100 #12)
 
 (gc)
 'fibo_Test
@@ -324,9 +370,8 @@ y            ; ==> b
 #=(fibo #10)
 #=(fibo #11)
 #=(fibo #12)
-#=(fibo #13)
 
-; ---------------------------------------
+; -------------------------------------
 ;; Test 2
 'Test_2
 
@@ -363,12 +408,12 @@ y            ; ==> b
 
 ; Ex. 2
 ;
-(>> '(eval* '(eval* '(reverse_z '(a b c)) plisp) plisp))
+(>> '(eval* '(reverse_z '(1 2 3 4 5)) plisp))
 (>> '(eval* '(eval* '(list2 'x 'y 'z) plisp) plisp))
 
 ; Ex. 3
 ;
-(>> '(eval* '(eval* 'reverse_z plisp) plisp))
+(>> '(eval* 'reverse_z plisp))
 (reset!)
-(>> '(eval* '(eval* 'reverse_z plisp) plisp))
-(>> '(eval* '(eval* '(cddr '(a b c d)) plisp) plisp))
+(>> '(eval* 'reverse_z plisp))
+(>> '(eval* '(cddr '(a b c d)) plisp))
