@@ -363,7 +363,7 @@ y            ; ==> b
 
 ; Ex. 2
 ;
-(>> '(eval* '(eval* '(reverse_z '(a b c d)) plisp) plisp))
+(>> '(eval* '(eval* '(reverse_z '(a b c)) plisp) plisp))
 (>> '(eval* '(eval* '(list2 'x 'y 'z) plisp) plisp))
 
 ; Ex. 3

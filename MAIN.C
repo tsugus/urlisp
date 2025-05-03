@@ -150,7 +150,7 @@ int main()
   }
   ifp = stdin;
   initCells();
-  ifp = fopen("init.txt", "r"); /* LISP programs to load at startup */
+  ifp = fopen("INIT.TXT", "r"); /* LISP programs to load at startup */
   if (ifp == NULL)
   {
     printf("\"init.txt\" is missing. Please prepare an empty init.txt file.\n");
