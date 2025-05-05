@@ -13,7 +13,9 @@ By the way, "init.txt" is loaded as a program file at startup.
 
 ## How to compile
 
-Execute Makefile with GCC or Clang.
+Compile it with Turbo C 2.0 on MS-DOS.
+
+Or, commenting out the lins 11 and line 12 in MAIN.C, execute Makefile with GCC or Clang.
 
 ## Starting UrLISP
 
