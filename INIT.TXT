@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for UrLISP ;;;;;;
-;; Version 0.3.0
+;; Version 0.3.1
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -234,17 +234,11 @@ y            ; ==> b
     ))
 
 ; =====================================
-;; (Incomplete) Self-embeding
-
-(def plisp-pair (cons 'plisp plisp))
-(def plisp (cons plisp-pair plisp))
-
-; -------------------------------------
 ;; "Pseudo interpretor" functions
 
 ; The global environment list '*env*'
 ;
-(def *env* plisp)
+(def *env* (cons (cons '*env* plisp) plisp))
 
 ; Add (x . y) to *env*.
 ;
@@ -252,8 +246,8 @@ y            ; ==> b
   '(lambda (x y)
      (cond
        ((cond
-          ((rplacd plisp-pair (cons (cons x y) *env*))
-           (def *env* (cons (cons x y) *env*))))  ; Note! Not reflected immediately.
+          ((rplacd *env* (cons (cons x y) (cdr *env*)))
+           (rplacd (car *env*) (cdr *env*))))
         x))))
 
 ; Eval x on the environment list.
@@ -266,9 +260,55 @@ y            ; ==> b
   '(lambda ()
      (cond
        ((cond
-          ((def *env* plisp)
-           (rplacd plisp-pair plisp)))
+          ((rplacd *env* plisp)
+           (rplacd (car *env*) plisp)))
         't))))
+
+; -------------------------------------
+;; Puseud Numbers Test
+
+'Number_Test
+'0 #0  '1 #1  '2 #2  '3 #3  '4 #4  '5 #5
+
+'100_/_12_=_8
+#=(/ #100 #12)
+
+'100_%_12_=_4
+#=(% #100 #12)
+
+(gc)
+'fibo_Test
+#=(fibo #0)
+#=(fibo #1)
+#=(fibo #2)
+#=(fibo #3)
+#=(fibo #4)
+#=(fibo #5)
+#=(fibo #6)
+#=(fibo #7)
+#=(fibo #8)
+#=(fibo #9)
+#=(fibo #10)
+#=(fibo #11)
+#=(fibo #12)
+
+; -------------------------------------
+;; Test 1
+'Test_1
+
+(<< 'reverse2
+    '(lambda (x)
+       ((label
+         rec
+         (lambda (x y)
+           (cond ((null x) y)
+                 (t (rec (cdr x) (cons (car x) y))))))
+        x '())))
+(>> '(eval* '(reverse2 '(1 2 3 4 5 6 7 8 9 10)) *env*))
+(>> '(eval* 'reverse2 *env*))
+(reset!)
+(>> '(eval* 'reverse2 *env*))
+(>> '(eval* '(cddr '(a b c d e)) *env*))
 
 ; -------------------------------------
 ;; Redefine
@@ -331,7 +371,7 @@ y            ; ==> b
           (apply* (car form) (cdr form) env)))))
 
 ; -------------------------------------
-; Z-combinator
+;; Z-combinator
 
 (<< 'funcall
     '(lambda (f . x) (apply f x)))
@@ -343,52 +383,9 @@ y            ; ==> b
         #'(lambda (y) (f #'(lambda x (apply (y y) x)))))))
 
 ; -------------------------------------
-;; Test 1
-'Test_1
-
-'Number_Test
-'0 #0  '1 #1  '2 #2  '3 #3  '4 #4  '5 #5
-
-'100_/_12_=_8
-#=(/ #100 #12)
-
-'100_%_12_=_4
-#=(% #100 #12)
-
-(gc)
-'fibo_Test
-#=(fibo #0)
-#=(fibo #1)
-#=(fibo #2)
-#=(fibo #3)
-#=(fibo #4)
-#=(fibo #5)
-#=(fibo #6)
-#=(fibo #7)
-#=(fibo #8)
-#=(fibo #9)
-#=(fibo #10)
-#=(fibo #11)
-#=(fibo #12)
-
-; -------------------------------------
 ;; Test 2
 'Test_2
 
-; Ex. 1
-;
-(<< 'reverse2
-    '(lambda (x)
-       ((label
-         rec
-         (lambda (x y)
-           (cond ((null x) y)
-                 (t (rec (cdr x) (cons (car x) y))))))
-        x '())))
-;
-'reverse2
-(>> '(reverse2 '(1 2 3 4 5 6 7 8 9 10)))
-;
 (<< 'reverse_z
     '(lambda (l)
        (funcall
@@ -400,20 +397,6 @@ y            ; ==> b
                    (t (f (cdr l)
                          (cons (car l) acc)))))))
         l '())))
-;
-'reverse_z
-(>> '(reverse_z '(1 2 3 4 5 6 7 8 9 10)))
-;
-(<< 'list2 '(lambda x x))
+(>> '(eval* '(reverse_z '(1 2 3 4 5 6 7 8 9 10)) *env*))
 
-; Ex. 2
-;
-(>> '(eval* '(reverse_z '(1 2 3 4 5)) plisp))
-(>> '(eval* '(eval* '(list2 'x 'y 'z) plisp) plisp))
-
-; Ex. 3
-;
-(>> '(eval* 'reverse_z plisp))
-(reset!)
-(>> '(eval* 'reverse_z plisp))
-(>> '(eval* '(cddr '(a b c d)) plisp))
+; -------------------------------------

@@ -9,13 +9,23 @@ UrLISP is an interpreter of so-called "pure LISP".
 It supports "super brackets" '[', ']' to group and close brackets together.
 
 Please refer to "init.txt" for usage.
-By the way, "init.txt" is loaded as a program file at startup.
+By the way, "INIT.TXT" is loaded as a asmple program file at startup.
 
 ## How to compile
 
-Compile it with Turbo C 2.0 on MS-DOS.
+Execute Makefile with GCC or Clang.
 
-Or, commenting out the lins 11 and line 12 in MAIN.C, execute Makefile with GCC or Clang.
+If you want to compile with Turbo-C on MS-DOS, do the following.
+
+Change the lines 10 and 11 in LISP.H to the following:
+
+    #define CELLS_SIZE 0x3800
+    #define STACK_SIZE 0x2000
+
+Add the following line near the beginning of MAIN.C:
+
+    #include <dos.h>
+    extern unsigned _stklen = 60000;
 
 ## Starting UrLISP
 
