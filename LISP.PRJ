@@ -1,4 +1,0 @@
-eval (lisp.h)
-gc (lisp.h)
-io (lisp.h)
-main (lisp.h)
