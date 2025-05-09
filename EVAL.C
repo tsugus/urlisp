@@ -5,6 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "LISP.H"
+#define check_1_arg(x) \
+  if ((x) == Nil)      \
+  return error("Not enough arguments")
+#define check_2_args(x)            \
+  if ((x) == Nil || cdr(x) == Nil) \
+  return error("Not enough arguments")
 
 void print_error(Index form, char *msg)
 {
@@ -38,16 +44,6 @@ Index error_(Index code, Index form)
 Index atom(Index x)
 {
   return (abs(tag(x)) == CELL ? Nil : T);
-}
-
-Index null(Index x)
-{
-  return (x == Nil ? T : Nil);
-}
-
-Index nott(Index x)
-{
-  return (x == Nil ? T : Nil);
 }
 
 Index cons(Index x, Index y)
@@ -115,8 +111,10 @@ Index assoclist(Index keys, Index values)
   ec;
   push(values);
   ec;
-  while (nott(atom(keys)) && nott(atom(values)))
+  while (atom(keys) == Nil && atom(values) == Nil)
   {
+    if (!is(car(keys), SYMBOL))
+      return error("A formal argument is not an symbol.");
     push(indx);
     ec;
     indx = cons(cons(car(keys), car(values)), indx);
@@ -125,7 +123,7 @@ Index assoclist(Index keys, Index values)
     values = cdr(values);
     pop();
   }
-  if (nott(null(keys)))
+  if (keys != Nil)
   {
     push(indx);
     ec;
@@ -140,6 +138,8 @@ Index assoclist(Index keys, Index values)
 
 Index assoc(Index key, Index lst)
 {
+  if (!is(key, SYMBOL))
+    return error("A key is not an symbol.");
   for (; lst != Nil; lst = cdr(lst))
     if (key == car(car(lst)))
       return cdr(car(lst));
@@ -183,13 +183,13 @@ Index isSUBR(Index x)
 
 Index evcond(Index clauses, Index env)
 {
-  for (; nott(null(clauses)); clauses = cdr(clauses))
+  for (; clauses != Nil; clauses = cdr(clauses))
   {
     if (is(clauses, SYMBOL))
       return error("Invalid clause");
     if (is(car(clauses), SYMBOL))
       return error("Invalid clause");
-    if (nott(null(eval(car(car(clauses)), env))))
+    if (eval(car(car(clauses)), env) != Nil)
       return eval(car(cdr(car(clauses))), env);
   }
   return Nil;
@@ -199,7 +199,7 @@ Index evlist(Index members, Index env)
 {
   Index indx;
 
-  for (indx = Nil; nott(null(members)); members = cdr(members))
+  for (indx = Nil; members != Nil; members = cdr(members))
   {
     push(indx);
     ec;
@@ -295,18 +295,22 @@ Index apply(Index func, Index args, Index env)
     switch (func)
     {
     case Quote:
+      check_1_arg(args);
       return car(args);
     case Atom:
-      if (atom(car(args)))
+      check_1_arg(args);
+      if (atom(car(args)) == T)
         return T;
       else
         return Nil;
     case Eq:
+      check_2_args(args);
       if (car(args) == car(cdr(args)))
         return T;
       else
         return Nil;
     case Car:
+      check_1_arg(args);
       if (car(args) == Nil)
         return Nil;
       else if (atom(car(args)) == T)
@@ -314,6 +318,7 @@ Index apply(Index func, Index args, Index env)
       else
         return car(car(args));
     case Cdr:
+      check_1_arg(args);
       if (car(args) == Nil)
         return Nil;
       else if (atom(car(args)) == T)
@@ -321,31 +326,42 @@ Index apply(Index func, Index args, Index env)
       else
         return cdr(car(args));
     case Cons:
+      check_2_args(args);
       return cons(car(args), car(cdr(args)));
     case Rplaca:
+      check_2_args(args);
       return rplaca(car(args), car(cdr(args)));
     case Rplacd:
+      check_2_args(args);
       return rplacd(car(args), car(cdr(args)));
     case Cond:
+      check_1_arg(args);
       return evcond(args, env);
     case Eval:
+      check_2_args(args);
       return eval(car(args), car(cdr(args)));
     case Apply:
+      check_2_args(args);
       return apply(car(args), car(cdr(args)), env);
     case Error:
+      check_2_args(args);
       return error_(car(args), car(cdr(args)));
     case Gc:
       mark_and_sweep();
       return Nil;
     case ImportEnv:
+      check_1_arg(args);
       return environment = eval(car(args), env);
     case ExportEnv:
       return environment;
     case Def:
+      check_2_args(args);
       return def(car(args), eval(car(cdr(args)), env));
     case Num:
+      check_1_arg(args);
       return num(car(args));
     case Len:
+      check_1_arg(args);
       return len(car(args));
     case Quit:
       return quit();
@@ -356,14 +372,20 @@ Index apply(Index func, Index args, Index env)
     }
   }
   else if (car(func) == Label)
+  {
+    check_2_args(cdr(func));
     return eval(cons(car(cdr(cdr(func))), args),
                 cons(cons(car(cdr(func)), car(cdr(cdr(func)))),
                      env));
+  }
   else if (car(func) == Lambda)
+  {
+    check_1_arg(cdr(func));
     return eval(car(cdr(cdr(func))),
                 append(assoclist(car(cdr(func)),
                                  evlist(args, env)),
                        env));
+  }
   else
   {
     error_(Num2, cons(func, args));

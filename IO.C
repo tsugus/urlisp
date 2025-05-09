@@ -10,7 +10,8 @@
 
 Index error(char *str)
 {
-  err = on;
+  if (err == off)
+    err = on;
   message = str;
   sp = 0;
   return 0;
