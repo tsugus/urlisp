@@ -39,7 +39,7 @@ Index gc_getFreeCell()
   {
     mark_and_sweep();
     if (freecells == CELLS_SIZE - 1)
-      error("There are no cells available.");
+      return error("There are no cells available.");
     else
     {
       indx = freecells;

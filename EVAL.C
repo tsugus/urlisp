@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include "LISP.H"
 #define check_1_arg(x) \
-  if ((x) == Nil)      \
+  if (!is(x, CELL))    \
   return error("Not enough arguments")
-#define check_2_args(x)            \
-  if ((x) == Nil || cdr(x) == Nil) \
+#define check_2_args(x)                  \
+  if (!is(x, CELL) || !is(cdr(x), CELL)) \
   return error("Not enough arguments")
 
 void print_error(Index form, char *msg)
@@ -244,17 +244,20 @@ Index num(Index arg)
   int i;
 
   if (!is(arg, SYMBOL))
-    error("the argument is an list.");
+    return error("The argument isn't a symbol.");
   nameToStr(car(arg), namebuf);
   num = atoi(namebuf);
-  result = 0;
+  result = Nil;
   for (i = 0; i < num; i++)
   {
+    push(result);
+    ec;
     indx = gc_getFreeCell();
     ec;
-    car(indx) = 1;
+    car(indx) = T;
     cdr(indx) = result;
     result = indx;
+    pop();
   }
   return result;
 }
@@ -265,7 +268,7 @@ Index len(Index arg)
   int i;
 
   if (is(arg, SYMBOL))
-    error("the argument is an atom.");
+    return error("The argument is an atom.");
   for (i = 0; arg; arg = cdr(arg))
     if (i++ < 0)
       return error("Numeric overflow.");
