@@ -11,8 +11,10 @@
 Index error(char *str)
 {
   if (err == off)
+  {
     err = on;
-  message = str;
+    message = str;
+  }
   sp = 0;
   return 0;
 }
@@ -125,6 +127,7 @@ Index gc_makeSymbol(char *str)
   push(cell);
   ec;
   car(cell) = gc_strToName(str);
+  ec;
   cdr(cell) = Nil;
   tag(cell) = SYMBOL;
   pop();
