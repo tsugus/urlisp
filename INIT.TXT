@@ -1,5 +1,5 @@
 ;;;;; An Initial Program for UrLISP ;;;;;;
-;; Version 0.3.1
+;; Version 0.3.2
 ;; (C) 2025 Tsugu
 ;;;;;
 
@@ -21,7 +21,7 @@
 '(a [b (c] [b (c])  ; ==> (a (b (c)) (b (c)))
 
 ; 'importenv', 'exportenv'
-(exportenv)             ; ==> ()
+(exportenv)             ; ==> nil
 (importenv '((x . a)))  ; ==> ((x . a))
 (exportenv)             ; ==> ((x . a))
 x                       ; ==> a
@@ -34,7 +34,7 @@ y            ; ==> b
 
 ; Truth, False
 (eq 'a 'a)  ; ==> t
-(eq 'a 'b)  ; ==> ()
+(eq 'a 'b)  ; ==> nil
 
 ; Gabage Collection
 (gc)

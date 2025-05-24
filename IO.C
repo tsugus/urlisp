@@ -176,6 +176,8 @@ Index gc_getSymbol()
   for (i = 0; !isSeparator(*txtp); i++)
     namebuf[i] = *(txtp++);
   namebuf[i] = '\0';
+  if (!strcmp(namebuf, "nil"))
+    return Nil;
   hash_n = hash(namebuf);
   symbol = findSymbol(hash_n, namebuf);
   if (symbol)
@@ -188,9 +190,9 @@ Index gc_getSymbol()
 
 void printSymbol(Index atom)
 {
-  if (!atom) /* For nil display */
+  if (atom == Nil) /* For nil display */
   {
-    printf("()");
+    printf("nil");
     return;
   }
   nameToStr(car(atom), namebuf);
